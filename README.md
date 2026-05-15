@@ -69,7 +69,7 @@ L'angle des languettes est réglable via le slider **Angle (°)**.
 
 ## Documentation
 
-Le fichier `DrawingVol-mode-emploi.docx` contient le manuel complet (7 sections, ~40 pages) avec captures d'écran, schémas géométriques et exemples pen plotter.
+Le fichier `DrawingVol-mode-emploi.pdf` contient le manuel complet (7 sections, ~40 pages) avec captures d'écran, schémas géométriques et exemples pen plotter.
 
 ---
 
