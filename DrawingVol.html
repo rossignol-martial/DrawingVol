@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Martial Rossignol">
+<meta name="license" content="CC BY-NC-SA 4.0">
+<meta name="description" content="DrawingVol — Gabarit SVG volumique — Martial Rossignol">
+<title>DrawingVol · Gabarit SVG</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/martinez-polygon-clipping/0.10.0/martinez.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0e0f;--panel:#141416;--border:#272729;--accent:#c8f060;--accent2:#60c8f0;
+  --text:#e0e0d8;--muted:#a8a8a4;--danger:#f06060;--col-w:210px;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;display:flex;flex-direction:column}
+header{padding:7px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0}
+header h1{font-family:'Fraunces',serif;font-weight:300;font-size:15px;color:var(--accent);letter-spacing:.02em;white-space:nowrap}
+.htag{font-size:10px;color:var(--muted)}
+.hbtn{padding:3px 11px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border-radius:3px;transition:.15s;white-space:nowrap}
+.hbtn:hover{border-color:var(--accent);color:var(--accent)}
+.main{display:flex;flex:1;overflow:hidden;min-height:0}
+.col{width:var(--col-w);background:var(--panel);overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column}
+.col-l{border-right:1px solid var(--border)}
+.col-r{border-left:1px solid var(--border)}
+.sec{border-bottom:1px solid var(--border);padding:9px 11px}
+.stitle{font-size:8px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);margin-bottom:7px}
+lbl,label{display:block;margin-bottom:2px;color:var(--muted);font-size:10px}
+input[type=range]{width:100%;accent-color:var(--accent);margin:1px 0 5px;height:14px}
+input[type=number],select{background:#0a0a0b;border:1px solid var(--border);color:var(--text);padding:3px 6px;width:100%;font-family:'DM Mono',monospace;font-size:11px;border-radius:3px;margin-bottom:5px}
+input[type=number]:focus,select:focus{outline:1px solid var(--accent)}
+.val{float:right;color:var(--accent);font-size:10px}
+.btn{display:block;width:100%;padding:5px;background:transparent;border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border-radius:3px;margin-bottom:4px;transition:.15s;text-align:center}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.pri{border-color:var(--accent);color:var(--accent)}
+.btn.pri:hover{background:var(--accent);color:#0e0e0f}
+.irow{display:flex;justify-content:space-between;margin-bottom:3px;font-size:10px}
+.irow span:first-child{color:var(--muted)}
+.badge{display:inline-block;padding:1px 5px;background:rgba(200,240,96,.1);color:var(--accent);border-radius:2px;font-size:8px}
+.ck-row{display:flex;align-items:center;gap:6px;padding:3px 0;cursor:pointer;color:var(--text);font-size:10px}
+.layer-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ─── SLIDER ROW ─── */
+.srow{display:flex;align-items:center;gap:4px;margin-bottom:5px}
+.srow input[type=range]{flex:1;margin:0}
+.sbtn{width:18px;height:18px;flex-shrink:0;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;line-height:1;cursor:pointer;border-radius:3px;transition:.15s;display:flex;align-items:center;justify-content:center;padding:0;user-select:none}
+.sbtn:hover{border-color:var(--accent);color:var(--accent)}
+.faces-selector{display:flex;gap:4px;margin-bottom:8px}
+.faces-btn{flex:1;padding:5px 2px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;border-radius:3px;transition:.15s;text-align:center;font-weight:500}
+.faces-btn:hover{border-color:var(--accent2);color:var(--accent2)}
+.faces-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(200,240,96,.08)}
+
+/* ─── FIT WARNING ─── */
+
+.canvas-area{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;position:relative}
+.tbar{padding:4px 10px;border-bottom:1px solid var(--border);display:flex;gap:4px;align-items:center;flex-shrink:0;flex-wrap:wrap}
+.tbtn{padding:2px 8px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;border-radius:3px;transition:.15s;white-space:nowrap}
+.tbtn:hover{border-color:var(--accent);color:var(--accent)}
+.preview-wrap{flex:1;overflow:hidden;background:#050506;position:relative;user-select:none;cursor:default}
+#ci{position:absolute;top:0;left:0;transform-origin:0 0}
+#sp{display:block;background:#fff;box-shadow:0 8px 50px rgba(0,0,0,.85)}
+.sbar{padding:3px 12px;font-size:9px;color:var(--muted);border-top:1px solid var(--border);flex-shrink:0;display:flex;justify-content:space-between}
+.legend{display:flex;gap:9px;align-items:center;font-size:9px;color:var(--muted)}
+
+#exportModal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);align-items:center;justify-content:center}
+#exportModal.open{display:flex}
+#exportBox{background:var(--panel);border:1px solid var(--accent);border-radius:6px;padding:20px 22px;width:340px;box-shadow:0 8px 40px rgba(0,0,0,.8)}
+#exportBox h2{font-family:'Fraunces',serif;font-weight:300;font-size:14px;color:var(--accent);margin-bottom:14px;letter-spacing:.02em}
+#exportBox label{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}
+#exportFilename{width:100%;background:#0a0a0b;border:1px solid var(--border);color:var(--text);padding:7px 9px;font-family:'DM Mono',monospace;font-size:12px;border-radius:3px;margin-bottom:4px}
+#exportFilename:focus{outline:1px solid var(--accent);border-color:var(--accent)}
+.export-hint{font-size:9px;color:var(--muted);margin-bottom:14px;line-height:1.6}
+.export-btns{display:flex;gap:8px;justify-content:flex-end}
+.export-btns button{padding:6px 16px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--text);transition:.15s}
+.export-btns button:hover{border-color:var(--accent);color:var(--accent)}
+.export-btns button.pri{border-color:var(--accent);color:var(--accent)}
+.export-btns button.pri:hover{background:var(--accent);color:#0e0e0f}
+.credit{padding:8px 11px;font-size:9px;color:var(--muted);line-height:1.8;border-top:1px solid var(--border);margin-top:auto}
+.credit a{color:#333;text-decoration:none}
+.credit strong{color:#2e2e2c;font-weight:400}
+</style>
+</head>
+<body>
+<header>
+  <h1>◈ DrawingVol</h1>
+  <span class="htag">Gabarit SVG · PenPlotter · Inkscape</span>
+  <span id="headerFaces" style="font-size:10px;color:var(--accent2);margin-left:4px">— 6 faces</span>
+  <span class="htag" style="margin-left:auto;color:#2e2e2c">Martial Rossignol</span>
+  <button class="hbtn" onclick="toggleFS()" id="btnFS">⛶ Plein écran</button>
+</header>
+
+<div class="main">
+
+<!-- ══ COLONNE GAUCHE ══ -->
+<div class="col col-l">
+  <div class="sec">
+    <div class="stitle">Nombre de faces latérales</div>
+    <div class="faces-selector">
+      <button class="faces-btn" id="fb1" onclick="setFaces(1)">○</button>
+      <button class="faces-btn" id="fb2" onclick="setFaces(2)">⌓</button>
+      <button class="faces-btn" id="fb3" onclick="setFaces(3)">3</button>
+      <button class="faces-btn" id="fb4" onclick="setFaces(4)">4</button>
+      <button class="faces-btn" id="fb5" onclick="setFaces(5)">5</button>
+      <button class="faces-btn active" id="fb6" onclick="setFaces(6)">6</button>
+    </div>
+    <div class="irow"><span>Polygone</span><span id="infoPolygon" style="color:var(--accent2)">hexagone</span></div>
+    <div class="irow"><span>Angle interne</span><span id="infoAngle" style="color:var(--text)">—</span></div>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">Dimensions</div>
+
+    <label id="lblR">Côté s (mm) <span class="val" id="vR">60</span></label>
+    <div class="srow"><button class="sbtn" onclick="nudge('rR','vR',-1)">−</button><input type="range" id="rR" min="8" max="100" value="60" oninput="updateVal('vR',this.value);regen()"><button class="sbtn" onclick="nudge('rR','vR',+1)">+</button></div>
+
+    <label>Hauteur H (mm) <span class="val" id="vH">135</span></label>
+    <div class="srow"><button class="sbtn" onclick="nudge('rH','vH',-1)">−</button><input type="range" id="rH" min="10" max="155" value="135" oninput="updateVal('vH',this.value);regen()"><button class="sbtn" onclick="nudge('rH','vH',+1)">+</button></div>
+
+    <label>Écart base/sommet (mm) <span class="val" id="vG">14</span></label>
+    <div class="srow"><button class="sbtn" onclick="nudge('rG','vG',-1)">−</button><input type="range" id="rG" min="1" max="20" value="14" oninput="updateVal('vG',this.value);regen()"><button class="sbtn" onclick="nudge('rG','vG',+1)">+</button></div>
+
+    <div class="irow" style="margin-top:3px"><span id="lblCote">Côté</span><span id="infoSide" style="color:var(--text)">—</span></div>
+    <div class="irow"><span>Emprise gabarit</span><span id="fitVal" style="color:var(--accent)">—</span></div>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">Languettes</div>
+    <label>Largeur (mm) <span class="val" id="vT">10</span></label>
+    <div class="srow"><button class="sbtn" onclick="nudge('rT','vT',-1)">−</button><input type="range" id="rT" min="3" max="20" value="10" oninput="updateVal('vT',this.value);regen()"><button class="sbtn" onclick="nudge('rT','vT',+1)">+</button></div>
+    <label>Angle (°) <span class="val" id="vA">60</span></label>
+    <div class="srow"><button class="sbtn" onclick="nudge('rA','vA',-1)">−</button><input type="range" id="rA" min="25" max="80" value="60" oninput="updateVal('vA',this.value);regen()"><button class="sbtn" onclick="nudge('rA','vA',+1)">+</button></div>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">Traits</div>
+    <label>Découpe (mm)</label>
+    <input type="number" id="strokeCut" value="0.25" step="0.05" min="0.05" max="1" onchange="regen()">
+    <label>Pliage (mm)</label>
+    <input type="number" id="strokeFold" value="0.15" step="0.05" min="0.05" max="1" onchange="regen()">
+    <label>Tiret / espace pliage</label>
+    <div style="display:flex;gap:4px">
+      <input type="number" id="dashLen" value="2" step="0.5" min="0.5" max="6" onchange="regen()" style="width:48%">
+      <input type="number" id="dashGap" value="1.5" step="0.5" min="0.5" max="6" onchange="regen()" style="width:48%">
+    </div>
+    <label>Couleur découpe</label>
+    <select id="colCut" onchange="regen()">
+      <option value="#000000">Noir</option><option value="#cc0000">Rouge</option><option value="#0000cc">Bleu</option>
+    </select>
+    <label>Couleur pliage</label>
+    <select id="colFold" onchange="regen()">
+      <option value="#0044cc" selected>Bleu</option><option value="#000000">Noir</option><option value="#cc0000">Rouge</option>
+    </select>
+    <label>Couleur languettes</label>
+    <select id="colTab" onchange="regen()">
+      <option value="#009933">Vert</option><option value="#ff6600">Orange</option><option value="#0000cc">Bleu</option><option value="#000000">Noir</option>
+    </select>
+  </div>
+</div>
+
+<!-- ══ CANVAS ══ -->
+<div class="canvas-area">
+  <div class="tbar">
+    <div class="legend">
+      <span><svg width="14" height="6" style="vertical-align:middle"><line x1="1" y1="3" x2="13" y2="3" stroke="#000" stroke-width="1.5"/></svg> Découpe</span>
+      <span><svg width="14" height="6" style="vertical-align:middle"><line x1="1" y1="3" x2="13" y2="3" stroke="#009933" stroke-width="1.5"/></svg> Languettes</span>
+      <span><svg width="18" height="6" style="vertical-align:middle"><line x1="1" y1="3" x2="17" y2="3" stroke="#0044cc" stroke-width="1" stroke-dasharray="3,2"/></svg> Pliage</span>
+      <span style="color:var(--accent2)">· dbl-clic face = importer SVG</span>
+    </div>
+    <span style="flex:1"></span>
+    <button class="tbtn" onclick="mainZoomBy(1.25)">＋</button>
+    <button class="tbtn" onclick="mainZoomBy(0.8)">－</button>
+    <button class="tbtn" onclick="mainFitView()">⊡ Fit</button>
+    <button class="tbtn" onclick="mainResetZoom()">1:1</button>
+    <span style="font-size:10px;color:var(--muted);min-width:38px;text-align:right" id="zoomPct">—</span>
+    <span style="color:var(--border)">│</span>
+    <span style="font-size:9px;color:var(--muted)" id="dimInfo"></span>
+  </div>
+
+  <div class="preview-wrap" id="pw">
+    <div id="ci"><svg id="sp" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  </div>
+
+  <div class="sbar">
+    <span id="sbar">Prêt — double-cliquer sur une face pour importer un SVG.</span>
+    <span style="color:#1e1e1c">Martial Rossignol · CC BY-NC-SA 4.0</span>
+  </div>
+
+  <input type="file" id="faceFile" accept=".svg,image/svg+xml" style="display:none" onchange="onFaceFile(event)">
+</div>
+
+<!-- ══ COLONNE DROITE ══ -->
+<div class="col col-r">
+
+  <div class="sec">
+    <div class="stitle">Calques aperçu</div>
+    <label class="ck-row"><input type="checkbox" id="showCut"    checked onchange="regen()"><span class="layer-dot" style="background:#111;border:1px solid #555"></span>Contours</label>
+    <label class="ck-row"><input type="checkbox" id="showTab"    checked onchange="regen()"><span class="layer-dot" style="background:#009933"></span>Languettes</label>
+    <label class="ck-row"><input type="checkbox" id="showFold"   checked onchange="regen()"><span class="layer-dot" style="background:#0044cc"></span>Pliage</label>
+    <label class="ck-row"><input type="checkbox" id="showArt"    checked onchange="regen()"><span class="layer-dot" style="background:#ff9800"></span>Dessins</label>
+    <label class="ck-row"><input type="checkbox" id="showDecoupe" checked onchange="regen()"><span class="layer-dot" style="background:#cc0000"></span>Découpe (union)</label>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">Export SVG</div>
+    <div style="font-size:9px;color:var(--muted);margin-bottom:7px;line-height:1.7">
+      A3 Portrait (297×420 mm)<br>
+      Rotation 90° appliquée<br>
+      Calques Inkscape :
+      <div style="margin-top:3px;line-height:1.9">
+        <span style="color:#666">Découpe</span> — contour global<br>
+        <span style="color:#666">Contours</span> — traits noirs<br>
+        <span style="color:#666">Languettes</span> — traits verts<br>
+        <span style="color:#666">Pliage</span> — pointillés<br>
+        <span style="color:#666">Dessin_[id]</span> — art par face
+      </div>
+      <div style="margin-top:6px;padding:4px 6px;background:rgba(200,240,96,.06);border-left:2px solid var(--accent);line-height:1.9">
+        <span style="color:var(--accent)">⚠ Avant le tracé</span><br>
+        Inkscape → calque Dessin_[id]<br>
+        Sélectionner tout + le contour<br>
+        <span style="color:#aaa">Objet › Écrêtage › Appliquer</span><br>
+        pour aplatir les clips.
+      </div>
+    </div>
+    <button class="btn pri" onclick="exportSVG()">↓ Exporter SVG A3</button>
+  </div>
+
+  <div class="sec">
+    <div class="stitle">Info géométrie</div>
+    <div style="font-size:9px;color:var(--muted);line-height:1.8" id="geoInfo">—</div>
+  </div>
+
+  <div class="credit">
+    <strong>Martial Rossignol</strong><br>
+    DrawingVol<br>
+    Licence <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a>
+  </div>
+
+</div>
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// © Martial Rossignol — DrawingVol — CC BY-NC-SA 4.0
+// DrawingVol — Gabarit SVG volumique (N = 1..6)
+// ═══════════════════════════════════════════════════════════════
+
+// A3 landscape working space
+const PW=420, PH=297, MARGIN=5;
+
+// ── Polygone names ─────────────────────────────────────────────
+const POLY_NAMES={1:'cylindre',2:'vesica',3:'triangle',4:'carré',5:'pentagone',6:'hexagone'};
+
+// ── State ──────────────────────────────────────────────────────
+const S={N:6, R:60, H:135, G:14, T:10, A:60, selectedFace:null};
+const faceData={};
+
+const g  =id=>document.getElementById(id);
+const nv =id=>+g(id).value;
+const ck =id=>g(id).checked;
+const updateVal=(id,v)=>g(id).textContent=Math.round(v*10)/10;
+
+function nudge(sliderId, valId, delta){
+  const sl=g(sliderId);
+  const step=parseFloat(sl.step)||1;
+  const min=parseFloat(sl.min), max=parseFloat(sl.max);
+  const newVal=Math.min(max, Math.max(min, parseFloat(sl.value)+delta*step));
+  sl.value=newVal;
+  updateVal(valId, newVal);
+  regen();
+}
+
+function ns(tag,attrs){
+  const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(const[k,v] of Object.entries(attrs||{}))el.setAttribute(k,v);
+  return el;
+}
+
+// ── N-gon geometry ──────────────────────────────────────────────
+// Regular N-gon with side length s:
+//   circumradius R_c = s / (2 * sin(π/N))
+//   inradius (apothem) r = s / (2 * tan(π/N))
+//   total width/height depends on orientation
+//
+// We orient the polygon so that ONE FLAT EDGE is at the BOTTOM
+// (pointing toward the lateral band). This means:
+//   - For EVEN N: also a flat edge at top (symmetric)
+//   - For ODD N: a vertex at top
+//
+// Orientation: first edge at bottom, horizontal.
+// We rotate the polygon so that the bottom edge is flat:
+//   vertex k at angle: -π/2 - π/N + 2πk/N + π/N = -π/2 + 2πk/N
+//   Wait — for flat-bottom: the bottom edge is between vertex floor and vertex ceil.
+//   For a "flat bottom" polygon: rotate by π/N from standard.
+//
+// Standard N-gon (vertex at right, 0°): v_k = R_c*(cos(2πk/N), sin(2πk/N))
+// For flat-bottom: rotate by -(π/2 - π/N) so bottom edge is horizontal
+//   → starting angle offset = π/N - π/2
+//   = -(π/2 - π/N)
+//
+// Bounding box of the flat-bottom polygon:
+//   We compute all vertices and get min/max x,y.
+
+function polygonVerts(cx, cy, Rc, N, offsetAngle){
+  // offsetAngle: rotation of the first vertex from 3-o'clock
+  // For flat-bottom: offsetAngle = π/N - π/2
+  const off = offsetAngle !== undefined ? offsetAngle : (Math.PI/N - Math.PI/2);
+  const verts=[];
+  for(let k=0;k<N;k++){
+    const a = off + 2*Math.PI*k/N;
+    verts.push([cx + Rc*Math.cos(a), cy + Rc*Math.sin(a)]);
+  }
+  return verts;
+}
+
+function polyBBox(verts){
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  for(const[x,y] of verts){
+    if(x<minX)minX=x;if(x>maxX)maxX=x;
+    if(y<minY)minY=y;if(y>maxY)maxY=y;
+  }
+  return{minX,minY,maxX,maxY,w:maxX-minX,h:maxY-minY};
+}
+
+function vertsToD(v){
+  return v.map((p,i)=>(i?'L':'M')+p[0].toFixed(3)+','+p[1].toFixed(3)).join('')+'Z';
+}
+
+function parseSVGVB(str){
+  try{
+    const doc=new DOMParser().parseFromString(str,'image/svg+xml');
+    const r=doc.documentElement;
+    if(r.querySelector('parsererror'))throw 0;
+    const vb=r.getAttribute('viewBox');
+    if(vb){const p=vb.trim().split(/[\s,]+/);if(p.length>=4)return{x:+p[0],y:+p[1],w:+p[2],h:+p[3]};}
+    return{x:0,y:0,w:parseFloat(r.getAttribute('width'))||100,h:parseFloat(r.getAttribute('height'))||100};
+  }catch(e){return{x:0,y:0,w:100,h:100};}
+}
+
+// ── CYLINDRE (N=1) ─────────────────────────────────────────────
+// R = rayon du cercle de base
+// Bandeau : rectangle unique, largeur = 2πR (périmètre), hauteur = H
+// Bases : 2 cercles de rayon R placés au-dessus du bandeau
+
+// ── VESICA (N=2) ───────────────────────────────────────────────
+// La vesica piscis est l'intersection de deux cercles de rayon R
+// dont les centres sont séparés de R (= côté s).
+// La base ressemble à un œil / amande.
+// Propriétés :
+//   Hauteur = R√3   Largeur = R
+//   Périmètre = 4πR/3 × 2 = 4πR/3 par arc (angle 2π/3 × 2 = 120° × 2)
+//   Chaque arc sous-tend 120° (2π/3 radians)
+//
+// Bandeau vesica : 2 faces courbes (arcs développés à plat)
+// Largeur développée d'un arc = R × (2π/3) × 2 = 4πR/3  (arc de 120° de rayon R)
+// NB : Pour l'assemblage, les 2 faces ont le même développé.
+//
+// La vesica avec côté s = distance entre les deux centres = R_arc
+// Rayon des arcs = s, angle demi-ouverture = 60° → longueur arc = s × 2π/3
+// Hauteur vesica = s√3, largeur = s
+
+// ── Vesica piscis ──────────────────────────────────────────────
+// vesicaHoriz : amande COUCHÉE — pointes à GAUCHE et DROITE
+//   Centres des arcs : (cx, cy±s/2), rayon s
+//   Pointes : (cx±s√3/2, cy)    largeur=s√3, hauteur=s
+//   Bounding box : w=s√3, h=s  (forme PLATE)
+function vesicaHoriz(cx, cy, s){
+  const w = s * Math.sqrt(3) / 2;   // demi-largeur = s√3/2
+  const left  = [cx - w, cy];
+  const right = [cx + w, cy];
+  // Arc bas : centre (cx, cy+s/2), rayon s, de left à right en passant par le bas (sweep=1)
+  // Arc haut: centre (cx, cy-s/2), rayon s, de right à left en passant par le haut (sweep=1)
+  return `M${left[0].toFixed(3)},${left[1].toFixed(3)} `+
+         `A${s.toFixed(3)},${s.toFixed(3)} 0 0,1 ${right[0].toFixed(3)},${right[1].toFixed(3)} `+
+         `A${s.toFixed(3)},${s.toFixed(3)} 0 0,1 ${left[0].toFixed(3)},${left[1].toFixed(3)} Z`;
+}
+
+// vesicaVert : amande DEBOUT — pointes en HAUT et en BAS
+//   Centres des arcs : (cx±s/2, cy), rayon s
+//   Pointes : (cx, cy±s√3/2)    largeur=s, hauteur=s√3
+//   Bounding box : w=s, h=s√3  (forme HAUTE)
+function vesicaVert(cx, cy, s){
+  const h = s * Math.sqrt(3) / 2;   // demi-hauteur = s√3/2
+  const top    = [cx, cy - h];
+  const bottom = [cx, cy + h];
+  return `M${bottom[0].toFixed(3)},${bottom[1].toFixed(3)} `+
+         `A${s.toFixed(3)},${s.toFixed(3)} 0 0,0 ${top[0].toFixed(3)},${top[1].toFixed(3)} `+
+         `A${s.toFixed(3)},${s.toFixed(3)} 0 0,0 ${bottom[0].toFixed(3)},${bottom[1].toFixed(3)} Z`;
+}
+
+// Alias : amandes pivotées 90° = couchées horizontalement
+function vesicaPath(cx, cy, s){ return vesicaHoriz(cx, cy, s); }
+
+function vesicaBBox(cx, cy, s){
+  const h = s * Math.sqrt(3) / 2;
+  return { minX: cx - s, minY: cy - h, maxX: cx + s, maxY: cy + h, w: 2*s, h: s*Math.sqrt(3) };
+}
+
+// ── LAYOUT ─────────────────────────────────────────────────────
+//
+// N lateral faces (rectangles) laid out in a horizontal band.
+// Face width = s (side length of polygon).
+// Band width  = N * s
+//
+// Base and top are regular N-gon with side s.
+// Orientation: flat-bottom edge facing the band.
+//
+// Polygon placement strategy for N faces:
+//   N=3: 1 polygon above band only (triangle has 1 bottom edge)
+//         Actually a triangular prism has 2 triangular bases.
+//         We need 2 polygons. Place them optimally on A3.
+//   N=4: 2 squares above band (faces 2 and 4 get tabs, no polygon above)
+//         Actually for a square prism: band = 4 rects, 2 squares as base/top
+//         Place squares above the band, one on each side, or both above.
+//   N=5: 2 pentagons
+//   N=6: 2 hexagons
+//
+// Generic strategy: place the 2 base polygons above the band.
+// Horizontal positions: 
+//   - Try to place them centered above non-tabbed faces (top tabs on odd-indexed faces)
+//   - If they don't fit side by side above band, place one above and one below
+//
+// POLYGON PLACEMENT:
+//   The polygon has a flat bottom edge of length s. We connect this bottom
+//   flat edge to the band top via a fold line.
+//   
+//   For the polygon to connect cleanly, we place it so its bottom flat edge
+//   aligns with a face top edge in the band.
+//
+//   Tab/no-tab alternation:
+//   - Faces with tab on TOP (odd indices 0,2,4,...): cannot have polygon above (tab takes that space)
+//   - Faces without tab on top (even indices 1,3,5,...): polygon sits above
+//   - For N=3: faces 0,1,2 → tabs on top for 0,2 → polygon above face 1 only
+//     → but we need 2 polygons. Place 2nd below band.
+//   - For N=4: faces 0,1,2,3 → tabs on 0,2 → polygons above face 1 and 3 ✓ (both fit)
+//   - For N=5: faces 0-4 → tabs on 0,2,4 → polygon above face 1 and 3 ✓
+//   - For N=6: faces 0-5 → tabs on 0,2,4 → polygon above face 1 and 3 ✓
+//
+//   For N=3: only 1 non-tabbed top face (face 1). Place P1 above face 1, P2 BELOW band.
+//   For N>=4 (even top slots): place P1 above face 1, P2 above face 3 (or appropriate).
+
+function computeLayout(){
+  const N     = S.N;
+  const s     = S.R;       // côté / rayon
+  const G     = S.G;       // écart base ↔ bandeau
+  const rectH = S.H;
+
+  // ════════════════════════════════════════════════════════════
+  // CYLINDRE (N=1)
+  // Les 2 cercles sont placés CÔTE À CÔTE au-dessus du bandeau
+  // ════════════════════════════════════════════════════════════
+  if(N===1){
+    const R = s;
+    const circ = 2 * Math.PI * R;
+    const bandW = circ;
+    const tabH = S.T;
+
+    // Cercles côte à côte au-dessus, séparés par G
+    // Centrage : on essaie de centrer les 2 cercles sur la largeur du bandeau
+    // Largeur totale des 2 cercles = 4R + G
+    // Bandeau à y = 2R + G (place pour les cercles + écart)
+    const raw_bandX = 0;
+    const raw_bandY = 2*R + G;
+    const raw_bandB = raw_bandY + rectH;
+
+    // P1 centré à x = bandW/4 (premier quart du bandeau)
+    // P2 centré à x = 3*bandW/4 (troisième quart)
+    // Ceci les centre approximativement au-dessus des deux moitiés du bandeau
+    const p1cx_r = bandW / 4;
+    const p2cx_r = 3 * bandW / 4;
+    const p1cy_r = R;   // bord bas = raw_bandY - G = 2R → cy = R
+    const p2cy_r = R;
+
+    // BBox globale
+    const rawLeft  = Math.min(p1cx_r-R, p2cx_r-R, 0) - tabH;
+    const rawRight = Math.max(p1cx_r+R, p2cx_r+R, bandW) + tabH;
+    const rawTop   = 0 - tabH;
+    const rawBot   = raw_bandB + tabH;
+
+    const dx = (PW - (rawRight-rawLeft)) / 2 - rawLeft;
+    const dy = (PH - (rawBot  -rawTop )) / 2 - rawTop;
+
+    const bandX = raw_bandX + dx;
+    const bandY = raw_bandY + dy;
+    const bandB = raw_bandB + dy;
+    const p1cx  = p1cx_r + dx, p1cy = p1cy_r + dy;
+    const p2cx  = p2cx_r + dx, p2cy = p2cy_r + dy;
+
+    const pLeft  = Math.min(bandX, p1cx-R, p2cx-R) - tabH;
+    const pRight = Math.max(bandX+bandW, p1cx+R, p2cx+R) + tabH;
+    const pTop   = Math.min(p1cy-R, p2cy-R) - tabH;
+    const pBot   = bandB + tabH;
+
+    return {
+      N, s, R, rectH, G, bandX, bandY, bandW, bandB,
+      p1cx, p1cy, p2cx, p2cy, circ,
+      pLeft, pRight, pTop, pBot,
+      Rc:R, polyOff:0, polyW:2*R, polyH:2*R,
+      polyBottomOffset:R, polyTopOffset:R, polyLeftOffset:R, polyRightOffset:R,
+      p2Below:false, triRight:false, p1Slot:-1, p2Slot:-1,
+      verts1:[], verts2:[],
+      bb1:{minX:p1cx-R, minY:p1cy-R, maxX:p1cx+R, maxY:p1cy+R, w:2*R, h:2*R},
+      bb2:{minX:p2cx-R, minY:p2cy-R, maxX:p2cx+R, maxY:p2cy+R, w:2*R, h:2*R},
+    };
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // VESICA (N=2)
+  // P1 au-dessus de R1, P2 au-dessus de R2
+  // Orientation HORIZONTALE : largeur = 2s, hauteur = s√3 (forme plate)
+  // → optimise l'espace vertical sur l'A3
+  // ════════════════════════════════════════════════════════════
+  if(N===2){
+    const arcLen = (2*Math.PI/3) * s;   // arc développé par face
+    const bandW  = 2 * arcLen;           // largeur totale bandeau
+    const hw     = arcLen;               // largeur d'une face
+
+    // vesicaHoriz (amande couchée) : w = s√3, h = s
+    const vesW   = s * Math.sqrt(3);    // largeur = s√3 (de pointe à pointe)
+    const vesH   = s;                    // hauteur = s (ventre)
+    const vesHalf = vesH / 2;            // demi-hauteur = s/2
+    const tabH   = S.T;
+
+    // Bandeau à y = cy + vesHalf + G (bord bas vesica + écart)
+    const raw_bandX = 0;
+    const p1cy_r = vesH / 2;
+    const p2cy_r = vesH / 2;
+    const raw_bandY = p1cy_r + vesHalf + G;  // = vesH + G
+    const raw_bandB = raw_bandY + rectH;
+
+    // P1 centré sur R1 (x = hw/2), P2 centré sur R2 (x = hw*3/2)
+    const p1cx_r = hw / 2;
+    const p2cx_r = hw * 3 / 2;
+
+    const rawLeft  = Math.min(p1cx_r - vesW/2, 0) - tabH;
+    const rawRight = Math.max(p2cx_r + vesW/2, bandW) + tabH;
+    const rawTop   = (p1cy_r - vesHalf) - tabH;
+    const rawBot   = raw_bandB + tabH;
+
+    const dx = (PW - (rawRight-rawLeft)) / 2 - rawLeft;
+    const dy = (PH - (rawBot  -rawTop )) / 2 - rawTop;
+
+    const bandX = raw_bandX + dx;
+    const bandY = raw_bandY + dy;
+    const bandB = raw_bandB + dy;
+    const p1cx  = p1cx_r + dx, p1cy = p1cy_r + dy;
+    const p2cx  = p2cx_r + dx, p2cy = p2cy_r + dy;
+
+    return {
+      N, s, arcLen, hw, vesW, vesH, vesHalf, rectH, G, bandX, bandY, bandW, bandB,
+      p1cx, p1cy, p2cx, p2cy,
+      pLeft:  Math.min(bandX, p1cx-vesW/2, p2cx-vesW/2) - tabH,
+      pRight: Math.max(bandX+bandW, p1cx+vesW/2, p2cx+vesW/2) + tabH,
+      pTop:   Math.min(p1cy-vesHalf, p2cy-vesHalf) - tabH,
+      pBot:   bandB + tabH,
+      vesRot90: false,
+      R:s, Rc:s, polyOff:0, polyW:vesW, polyH:vesH,
+      polyBottomOffset:vesHalf, polyTopOffset:vesHalf, polyLeftOffset:vesW/2, polyRightOffset:vesW/2,
+      p2Below:false, triRight:false, p1Slot:-1, p2Slot:-1,
+      verts1:[], verts2:[],
+      bb1:{minX:p1cx-vesW/2, minY:p1cy-vesHalf, maxX:p1cx+vesW/2, maxY:p1cy+vesHalf, w:vesW, h:vesH},
+      bb2:{minX:p2cx-vesW/2, minY:p2cy-vesHalf, maxX:p2cx+vesW/2, maxY:p2cy+vesHalf, w:vesW, h:vesH},
+    };
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // N ≥ 3 : POLYGONES RÉGULIERS (code original)
+  // ════════════════════════════════════════════════════════════
+
+  // ════════════════════════════════════════════════════════════
+  // N ≥ 3 : POLYGONES RÉGULIERS (code original)
+  // ════════════════════════════════════════════════════════════
+
+  // ── Circumradius ────────────────────────────────────────────
+  const Rc = s / (2 * Math.sin(Math.PI/N));
+
+  // ── Orientation des polygones ────────────────────────────────
+  // Pour N≠3 : flat-bottom (bord plat vers le bas → colle au haut du bandeau)
+  //   offset = π/N − π/2
+  // Pour N=3 : flat-left (bord plat vers la gauche → colle au bord droit du bandeau)
+  //   On veut que le bord gauche du triangle soit vertical, face au bandeau.
+  //   flat-left offset = 0  (vertex 0 à droite, vertex 1 en bas-gauche, vertex 2 en haut-gauche)
+  //   → bord gauche entre vertex 1 et vertex 2, vertical, longueur s ✓
+  const polyOff = (N===3) ? 0 : (Math.PI/N - Math.PI/2);
+
+  // BBox du polygone centré à l'origine
+  const testVerts  = polygonVerts(0,0,Rc,N,polyOff);
+  const bb         = polyBBox(testVerts);
+  const polyW      = bb.w;
+  const polyH      = bb.h;
+  const polyBottomOffset = bb.maxY;
+  const polyTopOffset    = -bb.minY;
+  const polyLeftOffset   = -bb.minX;   // distance centre→bord gauche (utile N=3)
+  const polyRightOffset  = bb.maxX;
+
+  const bandW = s * N;
+
+  // ════════════════════════════════════════════════════════════
+  // Calcul des positions brutes (origine 0,0), puis recentrage
+  // global sur la page A3 en une seule passe.
+  // ════════════════════════════════════════════════════════════
+
+  let raw_bandX, raw_bandY, raw_p1cx, raw_p1cy, raw_p2cx, raw_p2cy;
+  let p1Slot=-1, p2Slot=-1;
+  const triRight = (N===3);
+
+  if(N===3){
+    // ── TRIANGLE : bandeau à gauche, 2 triangles empilés à droite ──
+    // On place le bandeau à l'origine (0,0), triangles à droite.
+    raw_bandX = 0;
+    raw_bandY = 0;  // sera recentré après
+
+    // Triangles empilés : séparés par G, alignés verticalement
+    // Bord gauche triangle = bord droit bandeau + G
+    raw_p1cx = bandW + G + polyLeftOffset;
+    raw_p2cx = raw_p1cx;
+
+    // Centrage vertical des triangles par rapport au bandeau
+    const triBlockH = 2*polyH + G;
+    const bandMidY  = rectH / 2;
+    const triMidY   = triBlockH / 2;
+    raw_p1cy = bandMidY - triMidY + polyTopOffset;
+    raw_p2cy = raw_p1cy + polyH + G;
+
+  } else {
+    // ── N=4,5,6 : polygones au-dessus du bandeau ──
+    if(N===6){ p1Slot=1; p2Slot=4; }
+    else      { p1Slot=1; p2Slot=N-2; }
+
+    // Bandeau à y=polyH+G (polygones au-dessus)
+    raw_bandX = 0;
+    raw_bandY = polyH + G;
+
+    raw_p1cy = polyTopOffset;  // bord haut à y=0
+    raw_p2cy = raw_p1cy;
+    raw_p1cx = raw_bandX + p1Slot * s + s/2;
+    raw_p2cx = raw_bandX + p2Slot * s + s/2;
+  }
+
+  const raw_bandB = raw_bandY + rectH;
+
+  // Verts bruts
+  const rv1 = polygonVerts(raw_p1cx, raw_p1cy, Rc, N, polyOff);
+  const rv2 = polygonVerts(raw_p2cx, raw_p2cy, Rc, N, polyOff);
+  const rbb1 = polyBBox(rv1);
+  const rbb2 = polyBBox(rv2);
+
+  // BBox globale brute (tout le gabarit, languettes comprises)
+  // On ajoute S.T pour les languettes dans le bbox
+  const tabH = S.T;
+  const rawLeft  = Math.min(raw_bandX, rbb1.minX, rbb2.minX);
+  const rawRight = Math.max(raw_bandX + bandW, rbb1.maxX, rbb2.maxX);
+  const rawTop   = Math.min(rbb1.minY, rbb2.minY, raw_bandY) - tabH;
+  const rawBot   = Math.max(rbb1.maxY, rbb2.maxY, raw_bandB) + tabH;
+
+  // Offset pour centrer sur la page A3
+  const dx = (PW - (rawRight - rawLeft))  / 2 - rawLeft;
+  const dy = (PH - (rawBot   - rawTop))   / 2 - rawTop;
+
+  // Positions finales centrées
+  const bandX  = raw_bandX + dx;
+  const bandY  = raw_bandY + dy;
+  const bandB  = raw_bandB + dy;
+  const p1cx   = raw_p1cx  + dx;
+  const p1cy   = raw_p1cy  + dy;
+  const p2cx   = raw_p2cx  + dx;
+  const p2cy   = raw_p2cy  + dy;
+
+  const allVerts1 = polygonVerts(p1cx, p1cy, Rc, N, polyOff);
+  const allVerts2 = polygonVerts(p2cx, p2cy, Rc, N, polyOff);
+  const bb1 = polyBBox(allVerts1);
+  const bb2 = polyBBox(allVerts2);
+
+  // BBox réelle pour affichage fit
+  const pLeft  = Math.min(bandX, bb1.minX, bb2.minX);
+  const pRight = Math.max(bandX+bandW, bb1.maxX, bb2.maxX);
+  const pTop   = Math.min(bb1.minY, bb2.minY, bandY);
+  const pBot   = Math.max(bb1.maxY, bb2.maxY, bandB);
+
+  return{
+    N, s, Rc, polyOff, polyW, polyH, polyBottomOffset, polyTopOffset,
+    polyLeftOffset, polyRightOffset,
+    bandX, bandY, bandW, bandB, rectH, G,
+    p1cx, p1cy, p2cx, p2cy,
+    p2Below:false, triRight,
+    p1Slot, p2Slot,
+    pLeft, pRight, pTop, pBot,
+    bb1, bb2,
+    verts1: allVerts1, verts2: allVerts2
+  };
+}
+
+function getFaceBoxes(L){
+  const{s, bandX, bandY, rectH, N}=L;
+  const boxes={};
+  if(N===1){
+    boxes['R1']={x:bandX, y:bandY, w:L.bandW, h:rectH, type:'rect'};
+    boxes['P1']={x:L.p1cx-L.R, y:L.p1cy-L.R, w:2*L.R, h:2*L.R, type:'circle', cx:L.p1cx, cy:L.p1cy};
+    boxes['P2']={x:L.p2cx-L.R, y:L.p2cy-L.R, w:2*L.R, h:2*L.R, type:'circle', cx:L.p2cx, cy:L.p2cy};
+  } else if(N===2){
+    const hw=L.bandW/2;
+    boxes['R1']={x:bandX,    y:bandY, w:hw, h:rectH, type:'rect'};
+    boxes['R2']={x:bandX+hw, y:bandY, w:hw, h:rectH, type:'rect'};
+    // Vesica couchée (vesicaHoriz) : w=s√3, h=s
+    const vW=L.vesW, vH=L.vesH, vHf=L.vesHalf;
+    boxes['P1']={x:L.p1cx-vW/2, y:L.p1cy-vHf, w:vW, h:vH, type:'vesica', cx:L.p1cx, cy:L.p1cy};
+    boxes['P2']={x:L.p2cx-vW/2, y:L.p2cy-vHf, w:vW, h:vH, type:'vesica', cx:L.p2cx, cy:L.p2cy};
+  } else {
+    for(let i=0;i<N;i++){
+      boxes[`R${i+1}`]={x:bandX+i*s, y:bandY, w:s, h:rectH, type:'rect'};
+    }
+    const bb1=polyBBox(L.verts1);
+    const bb2=polyBBox(L.verts2);
+    boxes['P1']={x:bb1.minX, y:bb1.minY, w:bb1.w, h:bb1.h, type:'poly', cx:L.p1cx, cy:L.p1cy};
+    boxes['P2']={x:bb2.minX, y:bb2.minY, w:bb2.w, h:bb2.h, type:'poly', cx:L.p2cx, cy:L.p2cy};
+  }
+  return boxes;
+}
+
+function computeDefaultTx(fb,vb,mode){
+  if(mode==='stretch'){
+    return{tx:fb.x-vb.x*(fb.w/vb.w), ty:fb.y-vb.y*(fb.h/vb.h),
+           scX:fb.w/vb.w, scY:fb.h/vb.h, scale:null, mode};
+  }
+  const sc=mode==='cover'
+    ? Math.max(fb.w/vb.w,fb.h/vb.h)
+    : Math.min(fb.w/vb.w,fb.h/vb.h);
+  return{
+    tx:fb.x+(fb.w-vb.w*sc)/2-vb.x*sc,
+    ty:fb.y+(fb.h-vb.h*sc)/2-vb.y*sc,
+    scX:sc, scY:sc, scale:sc, mode
+  };
+}
+
+function ensureTx(id,L){
+  const fd=faceData[id];
+  if(!fd?.svgStr)return null;
+  if(fd.tx===undefined){
+    const fb=getFaceBoxes(L)[id];
+    if(!fb)return null;
+    const t=computeDefaultTx(fb,fd.vb,'fit');
+    fd.tx=t.tx;fd.ty=t.ty;fd.scX=t.scX;fd.scY=t.scY;fd.scale=t.scale;fd.mode=t.mode;
+  }
+  return fd;
+}
+
+// ── Glue tab ────────────────────────────────────────────────────
+function tabPath(x1,y1,x2,y2,T,angDeg,outDir){
+  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+  if(len<.5)return'';
+  const ux=dx/len,uy=dy/len,nx=-uy*outDir,ny=ux*outDir;
+  const ins=Math.min(T/Math.tan(angDeg*Math.PI/180),len*0.38);
+  return vertsToD([[x1,y1],[x2,y2],[x2+nx*T-ux*ins,y2+ny*T-uy*ins],[x1+nx*T+ux*ins,y1+ny*T+uy*ins]]);
+}
+
+// ── AUTO FIT ────────────────────────────────────────────────────
+// Find max s (side) that fits the gabarit within A3 with MARGIN
+// ── Peigne bord-à-bord pour cylindre et vesica ────────────────
+// base=10mm, bord à bord, angle calculé depuis le rayon de courbure
+// dir=-1:vers haut, dir=+1:vers bas ; retourne tableau de points G→D
+function combPts(x0, edgeY, totalW, Tv, dir, angDeg){
+  // Base fixe ≈10mm, languettes bord à bord
+  // dir = -1 : languettes vers le haut (bord supérieur)
+  // dir = +1 : languettes vers le bas  (bord inférieur)
+  // angDeg > 0 : gauche→droite (x0 = bord gauche)
+  // angDeg < 0 : droite→gauche (x0 = bord droit, on avance vers la gauche)
+  const leftToRight = angDeg >= 0;
+  const absAng = Math.abs(angDeg);
+  const BASE = 10;
+  const n = Math.round(totalW / BASE);
+  const tabW = totalW / n;
+  const inset = Math.min(Tv * Math.tan(absAng * Math.PI / 180), tabW * 0.48);
+  const pts = [[x0, edgeY]];
+  for(let i=0;i<n;i++){
+    let xl, xr;
+    if(leftToRight){
+      xl = x0 + i * tabW;
+      xr = xl + tabW;
+      pts.push([xl+inset, edgeY+dir*Tv]);
+      pts.push([xr-inset, edgeY+dir*Tv]);
+      pts.push([xr, edgeY]);
+    } else {
+      // droite→gauche : x0 est le bord droit
+      xl = x0 - i * tabW;
+      xr = xl - tabW;
+      pts.push([xl-inset, edgeY+dir*Tv]);
+      pts.push([xr+inset, edgeY+dir*Tv]);
+      pts.push([xr, edgeY]);
+    }
+  }
+  return {pts, n, tabW, inset};
+}
+
+// ── Clipping fonctions thread principal ────────────────────────
+function clipSegToEdge(pts,x1,y1,x2,y2){
+  const ins=(x,y)=>(x2-x1)*(y-y1)-(y2-y1)*(x-x1)>=0;
+  const isc=(ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,ex=x2-x1,ey=y2-y1,d=dx*ey-dy*ex;if(Math.abs(d)<1e-10)return[ax,ay];const t=((x1-ax)*ey-(y1-ay)*ex)/d;return[ax+t*dx,ay+t*dy];};
+  const out=[];
+  for(let i=0;i<pts.length-1;i++){const[ax,ay]=pts[i],[bx,by]=pts[i+1],ia=ins(ax,ay),ib=ins(bx,by);if(ia){out.push([ax,ay]);if(!ib)out.push(isc(ax,ay,bx,by));}else if(ib)out.push(isc(ax,ay,bx,by));}
+  if(pts.length>0&&ins(...pts[pts.length-1]))out.push(pts[pts.length-1]);
+  return out;
+}
+function clipSegToPolygon(pts,poly){let cur=pts;for(let i=0;i<poly.length;i++){if(!cur.length)break;const[x1,y1]=poly[i],[x2,y2]=poly[(i+1)%poly.length];cur=clipSegToEdge(cur,x1,y1,x2,y2);}return cur;}
+function clipSegToCircle(pts,cx,cy,r){
+  const ins=(x,y)=>(x-cx)**2+(y-cy)**2<=r*r+1e-9;
+  const isc=(ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,fx=ax-cx,fy=ay-cy,a2=dx*dx+dy*dy,b2=2*(fx*dx+fy*dy),c2=fx*fx+fy*fy-r*r,disc=b2*b2-4*a2*c2;if(disc<0)return[];const sq=Math.sqrt(disc);return[(-b2-sq)/(2*a2),(-b2+sq)/(2*a2)].filter(t=>t>=0&&t<=1).sort((a,b)=>a-b).map(t=>[ax+t*dx,ay+t*dy]);};
+  const out=[];
+  for(let i=0;i<pts.length-1;i++){const[ax,ay]=pts[i],[bx,by]=pts[i+1],ia=ins(ax,ay),ib=ins(bx,by);if(ia&&ib)out.push([ax,ay]);else if(ia){out.push([ax,ay]);const xs=isc(ax,ay,bx,by);if(xs.length)out.push(xs[xs.length-1]);out.push(null);}else if(ib){const xs=isc(ax,ay,bx,by);if(xs.length)out.push(xs[0]);}else{const xs=isc(ax,ay,bx,by);if(xs.length>=2){out.push(xs[0]);out.push(xs[1]);out.push(null);}}}
+  if(pts.length&&ins(...pts[pts.length-1]))out.push(pts[pts.length-1]);
+  return out;
+}
+function segToD(pts){if(!pts||!pts.length)return'';let d='',pen=false;for(const p of pts){if(!p){pen=false;continue;}d+=pen?'L'+p[0].toFixed(2)+','+p[1].toFixed(2):'M'+p[0].toFixed(2)+','+p[1].toFixed(2);pen=true;}return d;}
+function parsePathToSegs(d,step){
+  const segs=[];let cx=0,cy=0,sx=0,sy=0,cur=[];
+  const flush=()=>{if(cur.length>=2)segs.push([...cur]);cur=[];};
+  const re=/([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)/g;let m;
+  while((m=re.exec(d))!==null){
+    const cmd=m[1],args=m[2].trim().split(/[\s,]+/).filter(Boolean).map(Number),c=cmd.toLowerCase();
+    if(c==='m'){flush();let i=0;while(i<args.length){const nx=cmd==='M'?args[i]:cx+args[i],ny=cmd==='M'?args[i+1]:cy+args[i+1];cur.push([nx,ny]);cx=nx;cy=ny;if(i===0){sx=nx;sy=ny;}i+=2;}}
+    else if(c==='l'){let i=0;while(i<args.length){const nx=cmd==='L'?args[i]:cx+args[i],ny=cmd==='L'?args[i+1]:cy+args[i+1];cur.push([nx,ny]);cx=nx;cy=ny;i+=2;}}
+    else if(c==='h'){for(const a of args){const nx=cmd==='H'?a:cx+a;cur.push([nx,cy]);cx=nx;}}
+    else if(c==='v'){for(const a of args){const ny=cmd==='V'?a:cy+a;cur.push([cx,ny]);cy=ny;}}
+    else if(c==='c'){let i=0;while(i+5<args.length){const abs=cmd==='C',x1=abs?args[i]:cx+args[i],y1=abs?args[i+1]:cy+args[i+1],x2=abs?args[i+2]:cx+args[i+2],y2=abs?args[i+3]:cy+args[i+3],xe=abs?args[i+4]:cx+args[i+4],ye=abs?args[i+5]:cy+args[i+5];const n=Math.max(3,Math.ceil(Math.hypot(xe-cx,ye-cy)/step));for(let t=1;t<=n;t++){const u=t/n,v=1-u;cur.push([v*v*v*cx+3*v*v*u*x1+3*v*u*u*x2+u*u*u*xe,v*v*v*cy+3*v*v*u*y1+3*v*u*u*y2+u*u*u*ye]);}cx=xe;cy=ye;i+=6;}}
+    else if(c==='q'){let i=0;while(i+3<args.length){const abs=cmd==='Q',x1=abs?args[i]:cx+args[i],y1=abs?args[i+1]:cy+args[i+1],xe=abs?args[i+2]:cx+args[i+2],ye=abs?args[i+3]:cy+args[i+3];const n=Math.max(3,Math.ceil(Math.hypot(xe-cx,ye-cy)/step));for(let t=1;t<=n;t++){const u=t/n,v=1-u;cur.push([v*v*cx+2*v*u*x1+u*u*xe,v*v*cy+2*v*u*y1+u*u*ye]);}cx=xe;cy=ye;i+=4;}}
+    else if(c==='a'){let i=0;while(i+6<args.length){const abs=cmd==='A',rx=Math.abs(args[i]),ry=Math.abs(args[i+1]),xr=args[i+2]*Math.PI/180,laf=args[i+3],sf=args[i+4],xe=abs?args[i+5]:cx+args[i+5],ye=abs?args[i+6]:cy+args[i+6];if(xe===cx&&ye===cy){i+=7;continue;}const cos=Math.cos(xr),sin=Math.sin(xr),mx=(cx-xe)/2,my=(cy-ye)/2,x1p=cos*mx+sin*my,y1p=-sin*mx+cos*my,num=Math.max(0,rx*rx*ry*ry-rx*rx*y1p*y1p-ry*ry*x1p*x1p),den=rx*rx*y1p*y1p+ry*ry*x1p*x1p,sq=den>0?Math.sqrt(num/den):0,k=(laf===sf?-sq:sq),cxp=k*rx*y1p/ry,cyp=-k*ry*x1p/rx,ccx=cos*cxp-sin*cyp+(cx+xe)/2,ccy=sin*cxp+cos*cyp+(cy+ye)/2;let a0=Math.atan2((y1p-cyp)/ry,(x1p-cxp)/rx),da=Math.atan2((-y1p-cyp)/ry,(-x1p-cxp)/rx)-a0;if(sf===0&&da>0)da-=2*Math.PI;else if(sf===1&&da<0)da+=2*Math.PI;const n=Math.max(4,Math.ceil(Math.abs(da)*Math.max(rx,ry)/step));for(let t=1;t<=n;t++){const a=a0+da*t/n;cur.push([cos*rx*Math.cos(a)-sin*ry*Math.sin(a)+ccx,sin*rx*Math.cos(a)+cos*ry*Math.sin(a)+ccy]);}cx=xe;cy=ye;i+=7;}}
+    else if(c==='s'){let i=0;while(i+3<args.length){const abs=cmd==='S',xe=abs?args[i+2]:cx+args[i+2],ye=abs?args[i+3]:cy+args[i+3];cur.push([xe,ye]);cx=xe;cy=ye;i+=4;}}
+    else if(c==='t'){let i=0;while(i+1<args.length){const abs=cmd==='T',xe=abs?args[i]:cx+args[i],ye=abs?args[i+1]:cy+args[i+1];cur.push([xe,ye]);cx=xe;cy=ye;i+=2;}}
+    else if(c==='z'){if(sx!==cx||sy!==cy)cur.push([sx,sy]);flush();cx=sx;cy=sy;}
+  }
+  flush();return segs;
+}
+
+// ── BUILD SVG ──────────────────────────────────────────────────────────────────
+function buildSVG(target, forExport){
+  const L=computeLayout();
+  const{N,s,Rc,polyOff,bandX,bandY,bandW,bandB,rectH,
+        p1cx,p1cy,p2cx,p2cy,p2Below,p1Slot,p2Slot,
+        verts1,verts2,pLeft,pRight,pTop,pBot}=L;
+  const T=S.T,angD=S.A;
+  const colCut=g('colCut').value;
+  const colFold=g('colFold').value;
+  const colTab=g('colTab').value;
+  const swCut=nv('strokeCut'),swFold=nv('strokeFold');
+  const da=`${nv('dashLen')},${nv('dashGap')}`;
+
+  const showCut  =ck('showCut');
+  const showTab  =ck('showTab');
+  const showFold =ck('showFold');
+  const showArt  =ck('showArt');
+  const showDecoupe=ck('showDecoupe');
+
+  const EW=forExport?297:PW;
+  const EH=forExport?420:PH;
+
+  target.setAttribute('viewBox',`0 0 ${EW} ${EH}`);
+  if(forExport){
+    target.setAttribute('width', EW+'mm');
+    target.setAttribute('height',EH+'mm');
+    target.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    target.setAttribute('xmlns:inkscape','http://www.inkscape.org/namespaces/inkscape');
+  }else{
+    target.setAttribute('width', PW);
+    target.setAttribute('height',PH);
+  }
+  target.innerHTML='';
+
+  if(forExport){
+    const meta=ns('metadata',{});
+    meta.innerHTML=`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#"><rdf:Description><dc:creator>Martial Rossignol</dc:creator><dc:title>DrawingVol — Prisme ${N}-gonal</dc:title><dc:license rdf:resource="https://creativecommons.org/licenses/by-nc-sa/4.0/"/></rdf:Description></rdf:RDF>`;
+    target.appendChild(meta);
+    const nv2=document.createElementNS('http://sodipodi.sourceforge.net/DTD/sodipodi-0.0.dtd','sodipodi:namedview');
+    nv2.setAttribute('inkscape:document-units','mm');
+    nv2.setAttribute('units','mm');
+    target.appendChild(nv2);
+  }
+
+  let contentRoot=target;
+  if(forExport){
+    const rotG=ns('g',{transform:'translate(0,420) rotate(-90)'});
+    target.appendChild(rotG);
+    contentRoot=rotG;
+  }else{
+    target.appendChild(ns('rect',{x:0,y:0,width:PW,height:PH,fill:'#fff'}));
+    target.appendChild(ns('rect',{x:.3,y:.3,width:PW-.6,height:PH-.6,fill:'none',stroke:'#ccc','stroke-width':'.3','stroke-dasharray':'4,3'}));
+    contentRoot=target;
+  }
+
+  // Defs + clips
+  const defs=ns('defs',{});target.appendChild(defs);
+  function addClip(id,d){const cp=ns('clipPath',{id});cp.appendChild(ns('path',{d}));defs.appendChild(cp);}
+  function addClipEl(id,el){const cp=ns('clipPath',{id});cp.appendChild(el);defs.appendChild(cp);}
+
+  if(N===1){
+    // Clips circulaires
+    addClipEl('clip_P1',ns('circle',{cx:L.p1cx.toFixed(3),cy:L.p1cy.toFixed(3),r:L.R.toFixed(3)}));
+    addClipEl('clip_P2',ns('circle',{cx:L.p2cx.toFixed(3),cy:L.p2cy.toFixed(3),r:L.R.toFixed(3)}));
+    addClip('clip_R1',`M${bandX.toFixed(3)},${bandY.toFixed(3)}h${L.circ.toFixed(3)}v${rectH.toFixed(3)}h${(-L.circ).toFixed(3)}Z`);
+  } else if(N===2){
+    addClip('clip_P1',vesicaPath(L.p1cx,L.p1cy,s));
+    addClip('clip_P2',vesicaPath(L.p2cx,L.p2cy,s));
+    const hw=L.bandW/2;
+    addClip('clip_R1',`M${bandX.toFixed(3)},${bandY.toFixed(3)}h${hw.toFixed(3)}v${rectH.toFixed(3)}h${(-hw).toFixed(3)}Z`);
+    addClip('clip_R2',`M${(bandX+hw).toFixed(3)},${bandY.toFixed(3)}h${hw.toFixed(3)}v${rectH.toFixed(3)}h${(-hw).toFixed(3)}Z`);
+  } else {
+    addClip('clip_P1', vertsToD(verts1));
+    addClip('clip_P2', vertsToD(verts2));
+    for(let i=0;i<N;i++)
+      addClip(`clip_R${i+1}`,`M${(bandX+i*s).toFixed(3)},${bandY.toFixed(3)}h${s.toFixed(3)}v${rectH.toFixed(3)}h${(-s).toFixed(3)}Z`);
+  }
+
+  function mkLayer(id,label,vis,parent){
+    const grp=ns('g',{id});
+    if(forExport){grp.setAttribute('inkscape:label',label);grp.setAttribute('inkscape:groupmode','layer');}
+    if(!vis)grp.setAttribute('display','none');
+    (parent||contentRoot).appendChild(grp);
+    return grp;
+  }
+  function addP(ly,d,stroke,sw,dash,fill){
+    if(!d)return;
+    const el=ns('path',{d,stroke,'stroke-width':String(sw),fill:fill||'none','stroke-linecap':'round','stroke-linejoin':'round'});
+    if(dash)el.setAttribute('stroke-dasharray',dash);
+    ly.appendChild(el);
+  }
+
+  // ── DÉCOUPE layer — contour extérieur uniquement ──────────────
+  const lyDecoupe=mkLayer('layer_decoupe','Découpe', forExport?true:showDecoupe);
+  if(showDecoupe||forExport){
+    const dSW=swCut; const dCol='#cc0000';
+
+    // ── Helper peigne (défini au-dessus de buildSVG) ──────────
+    // combPts(x0, edgeY, totalW, Tv, dir, angD) — angle piloté par le slider
+
+    if(N===1){
+      const circ=L.circ, R=L.R;
+      const seamIns=Math.min(T/Math.tan(angD*Math.PI/180), rectH*0.38);
+      // topPts : peigne haut, gauche→droite, part de [bandX, bandY]
+      const {pts:topPts}=combPts(bandX, bandY, circ, T, -1, angD);
+      // botPts : peigne bas, droite→gauche, part de [bandX+circ, bandB]
+      const {pts:botPts}=combPts(bandX+circ, bandB, circ, T, +1, -angD);
+      // Périmètre horaire :
+      // 1. Peigne haut G→D  (topPts, commence [bandX,bandY], finit [bandX+circ,bandY])
+      // 2. Couture droite   ([bandX+circ,bandY] → [bandX+circ+T,bandY+seamIns] → ... → [bandX+circ,bandB])
+      // 3. Peigne bas D→G   (botPts, commence [bandX+circ,bandB], finit [bandX,bandB])
+      // 4. Bord gauche      (Z ferme [bandX,bandB] → [bandX,bandY])
+      const perim=[
+        ...topPts,
+        [bandX+circ+T, bandY+seamIns],
+        [bandX+circ+T, bandB-seamIns],
+        [bandX+circ,   bandB],
+        ...botPts.slice(1),   // slice(1) : évite le doublon avec [bandX+circ, bandB]
+      ];
+      addP(lyDecoupe, perim.map((p,i)=>(i?'L':'M')+p[0].toFixed(2)+','+p[1].toFixed(2)).join('')+'Z', dCol, dSW);
+      lyDecoupe.appendChild(ns('circle',{cx:L.p1cx.toFixed(3),cy:L.p1cy.toFixed(3),r:R.toFixed(3),stroke:dCol,'stroke-width':dSW,fill:'none'}));
+      lyDecoupe.appendChild(ns('circle',{cx:L.p2cx.toFixed(3),cy:L.p2cy.toFixed(3),r:R.toFixed(3),stroke:dCol,'stroke-width':dSW,fill:'none'}));
+
+    } else if(N===2){
+      const seamIns=Math.min(T/Math.tan(angD*Math.PI/180), rectH*0.38);
+      const {pts:topPts}=combPts(bandX, bandY, L.bandW, T, -1, angD);
+      const {pts:botPts}=combPts(bandX+L.bandW, bandB, L.bandW, T, +1, -angD);
+      const perim=[
+        ...topPts,
+        [bandX+L.bandW+T, bandY+seamIns],
+        [bandX+L.bandW+T, bandB-seamIns],
+        [bandX+L.bandW,   bandB],
+        ...botPts.slice(1),
+      ];
+      addP(lyDecoupe, perim.map((p,i)=>(i?'L':'M')+p[0].toFixed(2)+','+p[1].toFixed(2)).join('')+'Z', dCol, dSW);
+      addP(lyDecoupe, vesicaPath(L.p1cx,L.p1cy,s), dCol, dSW);
+      addP(lyDecoupe, vesicaPath(L.p2cx,L.p2cy,s), dCol, dSW);
+
+    } else {
+      // N≥3 : code original
+      function bandEdgeWithTabs(startX, edgeY, faceCount, faceW, Tv, angDv, dir, leftToRight){
+        const pts=[];
+        const ins=Math.min(Tv/Math.tan(angDv*Math.PI/180), faceW*0.38);
+        if(leftToRight){
+          for(let i=0;i<faceCount;i++){const x1=startX+i*faceW,x2=x1+faceW;pts.push([x1,edgeY],[x1+ins,edgeY+dir*Tv],[x2-ins,edgeY+dir*Tv],[x2,edgeY]);}
+        }else{
+          for(let i=0;i<faceCount;i++){const x1=startX-i*faceW,x2=x1-faceW;pts.push([x1,edgeY],[x1-ins,edgeY+dir*Tv],[x2+ins,edgeY+dir*Tv],[x2,edgeY]);}
+        }
+        return pts;
+      }
+      function rightSeamPts(x,yTop,yBot,Tv,angDv){const ins=Math.min(Tv/Math.tan(angDv*Math.PI/180),(yBot-yTop)*0.38);return[[x,yTop],[x+Tv,yTop+ins],[x+Tv,yBot-ins],[x,yBot]];}
+      const bandPath=[[bandX,bandY],...bandEdgeWithTabs(bandX,bandY,N,s,T,angD,-1,true).slice(1),
+                      ...rightSeamPts(bandX+bandW,bandY,bandB,T,angD).slice(1),
+                      ...bandEdgeWithTabs(bandX+bandW,bandB,N,s,T,angD,+1,false).slice(1)];
+      addP(lyDecoupe,bandPath.map((p,i)=>(i?'L':'M')+p[0].toFixed(3)+','+p[1].toFixed(3)).join('')+'Z',dCol,dSW);
+      addP(lyDecoupe,vertsToD(verts1),dCol,dSW);
+      addP(lyDecoupe,vertsToD(verts2),dCol,dSW);
+    }
+  }
+
+  // ── ART layer ─────────────────────────────────────────────────
+  // Export et aperçu : clip-path vectoriel SVG.
+  // Pour le tracé pen plotter : appliquer l'écrêtage dans Inkscape avant envoi
+  // (Objet › Écrêtage › Appliquer sur chaque calque Dessin_[id])
+  const boxes=getFaceBoxes(L);
+  const lyArt=mkLayer('layer_art','Dessins',forExport?true:showArt);
+  if(showArt||forExport){
+    Object.entries(boxes).forEach(([id,fb])=>{
+      const fd=faceData[id];if(!fd?.svgStr)return;
+      const fdx=ensureTx(id,L);if(!fdx)return;
+      try{
+        const doc2=new DOMParser().parseFromString(fdx.svgStr,'image/svg+xml');
+        const inner=doc2.documentElement;
+        if(!inner||inner.querySelector('parsererror'))return;
+        const scX=fdx.scX!=null?fdx.scX:(fdx.scale||1);
+        const scY=fdx.scY!=null?fdx.scY:(fdx.scale||1);
+
+        // Clip dédié par calque (id unique)
+        const clipId='clip_art_'+id;
+        const cp=ns('clipPath',{id:clipId,'clipPathUnits':'userSpaceOnUse'});
+        if(fb.type==='circle'){
+          cp.appendChild(ns('circle',{cx:fb.cx.toFixed(3),cy:fb.cy.toFixed(3),r:L.R.toFixed(3)}));
+        } else if(fb.type==='vesica'){
+          cp.appendChild(ns('path',{d:vesicaPath(fb.cx,fb.cy,s)}));
+        } else if(fb.type==='poly'){
+          const vts=(id==='P1')?verts1:verts2;
+          cp.appendChild(ns('path',{d:vertsToD(vts)}));
+        } else {
+          cp.appendChild(ns('rect',{x:fb.x.toFixed(3),y:fb.y.toFixed(3),width:fb.w.toFixed(3),height:fb.h.toFixed(3)}));
+        }
+        defs.appendChild(cp);
+
+        const layerG=ns('g',{id:'layer_art_'+id});
+        if(forExport){
+          layerG.setAttribute('inkscape:label','Dessin_'+id);
+          layerG.setAttribute('inkscape:groupmode','layer');
+        }
+        const clipG=ns('g',{'clip-path':`url(#${clipId})`});
+        const iDefs=inner.querySelector('defs');
+        if(iDefs)Array.from(iDefs.childNodes).forEach(n=>{if(n.nodeType===1)defs.appendChild(n.cloneNode(true));});
+        const iG=ns('g',{transform:`translate(${fdx.tx.toFixed(4)},${fdx.ty.toFixed(4)}) scale(${scX.toFixed(8)},${scY.toFixed(8)})`});
+        Array.from(inner.childNodes).forEach(n=>{if(n.nodeType===1&&n.tagName.toLowerCase()!=='defs')iG.appendChild(n.cloneNode(true));});
+        clipG.appendChild(iG);
+        layerG.appendChild(clipG);
+        lyArt.appendChild(layerG);
+      }catch(e){console.warn('art',id,e);}
+    });
+  }
+
+  // ── CUT layer ─────────────────────────────────────────────────
+  const lyCut=mkLayer('layer_cut','Contours',forExport?true:showCut);
+  if(showCut||forExport){
+    if(N===1){
+      // Bandeau rectangle + 2 cercles
+      addP(lyCut,`M${bandX.toFixed(3)},${bandY.toFixed(3)}h${L.circ.toFixed(3)}v${rectH.toFixed(3)}h${(-L.circ).toFixed(3)}Z`,colCut,swCut);
+      lyCut.appendChild(ns('circle',{cx:L.p1cx.toFixed(3),cy:L.p1cy.toFixed(3),r:L.R.toFixed(3),stroke:colCut,'stroke-width':swCut,fill:'none'}));
+      lyCut.appendChild(ns('circle',{cx:L.p2cx.toFixed(3),cy:L.p2cy.toFixed(3),r:L.R.toFixed(3),stroke:colCut,'stroke-width':swCut,fill:'none'}));
+    } else if(N===2){
+      // 2 rectangles développés + 2 vesicas
+      const hw=L.bandW/2;
+      addP(lyCut,`M${bandX.toFixed(3)},${bandY.toFixed(3)}h${hw.toFixed(3)}v${rectH.toFixed(3)}h${(-hw).toFixed(3)}Z`,colCut,swCut);
+      addP(lyCut,`M${(bandX+hw).toFixed(3)},${bandY.toFixed(3)}h${hw.toFixed(3)}v${rectH.toFixed(3)}h${(-hw).toFixed(3)}Z`,colCut,swCut);
+      addP(lyCut,vesicaPath(L.p1cx,L.p1cy,s),colCut,swCut);
+      addP(lyCut,vesicaPath(L.p2cx,L.p2cy,s),colCut,swCut);
+    } else {
+      for(let i=0;i<N;i++)
+        addP(lyCut,`M${(bandX+i*s).toFixed(3)},${bandY.toFixed(3)}h${s.toFixed(3)}v${rectH.toFixed(3)}h${(-s).toFixed(3)}Z`,colCut,swCut);
+      addP(lyCut,vertsToD(verts1),colCut,swCut);
+      addP(lyCut,vertsToD(verts2),colCut,swCut);
+    }
+  }
+
+  // ── TABS layer ────────────────────────────────────────────────
+  const lyTab=mkLayer('layer_tabs','Languettes',forExport?true:showTab);
+  if(showTab||forExport){
+    if(N===1){
+      const circ=L.circ, R=L.R;
+      const {n:nT,tabW,inset} = combPts(bandX,bandY,circ,T,-1,angD);
+      for(let i=0;i<nT;i++){
+        const xl=bandX+i*tabW, xr=xl+tabW;
+        addP(lyTab,`M${xl.toFixed(2)},${bandY.toFixed(2)}L${(xl+inset).toFixed(2)},${(bandY-T).toFixed(2)}L${(xr-inset).toFixed(2)},${(bandY-T).toFixed(2)}L${xr.toFixed(2)},${bandY.toFixed(2)}Z`,colTab,swCut);
+        addP(lyTab,`M${xl.toFixed(2)},${bandY.toFixed(2)}H${xr.toFixed(2)}`,colFold,swFold,da);
+      }
+      const {n:nB,tabW:bW,inset:bIns} = combPts(bandX,bandB,circ,T,+1,angD);
+      for(let i=0;i<nB;i++){
+        const xl=bandX+i*bW, xr=xl+bW;
+        addP(lyTab,`M${xr.toFixed(2)},${bandB.toFixed(2)}L${(xr-bIns).toFixed(2)},${(bandB+T).toFixed(2)}L${(xl+bIns).toFixed(2)},${(bandB+T).toFixed(2)}L${xl.toFixed(2)},${bandB.toFixed(2)}Z`,colTab,swCut);
+      }
+      addP(lyTab,tabPath(bandX+circ,bandB,bandX+circ,bandY,T,angD,+1),colTab,swCut);
+
+    } else if(N===2){
+      const {n:nT,tabW,inset} = combPts(bandX,bandY,L.bandW,T,-1,angD);
+      for(let i=0;i<nT;i++){
+        const xl=bandX+i*tabW, xr=xl+tabW;
+        addP(lyTab,`M${xl.toFixed(2)},${bandY.toFixed(2)}L${(xl+inset).toFixed(2)},${(bandY-T).toFixed(2)}L${(xr-inset).toFixed(2)},${(bandY-T).toFixed(2)}L${xr.toFixed(2)},${bandY.toFixed(2)}Z`,colTab,swCut);
+        addP(lyTab,`M${xl.toFixed(2)},${bandY.toFixed(2)}H${xr.toFixed(2)}`,colFold,swFold,da);
+      }
+      const {n:nB,tabW:bW,inset:bIns} = combPts(bandX,bandB,L.bandW,T,+1,angD);
+      for(let i=0;i<nB;i++){
+        const xl=bandX+i*bW, xr=xl+bW;
+        addP(lyTab,`M${xr.toFixed(2)},${bandB.toFixed(2)}L${(xr-bIns).toFixed(2)},${(bandB+T).toFixed(2)}L${(xl+bIns).toFixed(2)},${(bandB+T).toFixed(2)}L${xl.toFixed(2)},${bandB.toFixed(2)}Z`,colTab,swCut);
+      }
+      addP(lyTab,tabPath(bandX+L.bandW,bandB,bandX+L.bandW,bandY,T,angD,+1),colTab,swCut);
+    } else {
+      addP(lyTab,tabPath(bandX+bandW,bandB,bandX+bandW,bandY,T,angD,+1),colTab,swCut);
+      for(let i=0;i<N;i++){const x1=bandX+i*s,x2=x1+s;addP(lyTab,tabPath(x1,bandY,x2,bandY,T,angD,-1),colTab,swCut);}
+      for(let i=0;i<N;i++){const x1=bandX+i*s,x2=x1+s;addP(lyTab,tabPath(x2,bandB,x1,bandB,T,angD,-1),colTab,swCut);}
+    }
+  }
+
+  // ── FOLD layer ────────────────────────────────────────────────
+  // Pliage uniquement sur les faces LATÉRALES — pas sur les bases/sommets
+  const lyFold=mkLayer('layer_fold','Pliage',forExport?true:showFold);
+  if(showFold||forExport){
+    if(N===1){
+      // Cylindre : seule la couture verticale (jonction des deux bords du bandeau)
+      addP(lyFold,`M${(bandX+L.circ).toFixed(3)},${bandY.toFixed(3)}V${bandB.toFixed(3)}`,colFold,swFold,da);
+    } else if(N===2){
+      // Vesica : séparation verticale entre les 2 faces latérales uniquement
+      const hw=L.bandW/2;
+      addP(lyFold,`M${(bandX+hw).toFixed(3)},${bandY.toFixed(3)}V${bandB.toFixed(3)}`,colFold,swFold,da);
+    } else {
+      // N≥3 : traits verticaux entre les faces latérales + horizontaux haut/bas du bandeau
+      for(let i=1;i<N;i++)
+        addP(lyFold,`M${(bandX+i*s).toFixed(3)},${bandY.toFixed(3)}V${bandB.toFixed(3)}`,colFold,swFold,da);
+      addP(lyFold,`M${bandX.toFixed(3)},${bandY.toFixed(3)}H${(bandX+bandW).toFixed(3)}`,colFold,swFold,da);
+      addP(lyFold,`M${bandX.toFixed(3)},${bandB.toFixed(3)}H${(bandX+bandW).toFixed(3)}`,colFold,swFold,da);
+    }
+  }
+
+  // ── SELECTION HIGHLIGHT ──────────────────────────────────────
+  if(!forExport){
+    if(S.selectedFace){
+      const fb=boxes[S.selectedFace];
+      if(fb){
+        const hl=ns('g',{id:'hl','pointer-events':'none'});
+        if(fb.type==='poly'){
+          const vts=(S.selectedFace==='P1')?verts1:verts2;
+          hl.appendChild(ns('polygon',{
+            points:vts.map(p=>p[0].toFixed(2)+','+p[1].toFixed(2)).join(' '),
+            fill:'rgba(200,240,96,.08)',stroke:'#c8f060','stroke-width':'.8'
+          }));
+        }else if(fb.type==='circle'){
+          hl.appendChild(ns('circle',{cx:fb.cx.toFixed(2),cy:fb.cy.toFixed(2),r:L.R.toFixed(2),
+            fill:'rgba(200,240,96,.08)',stroke:'#c8f060','stroke-width':'.8'}));
+        }else if(fb.type==='vesica'){
+          const vp=ns('path',{d:vesicaPath(fb.cx,fb.cy,s),
+            fill:'rgba(200,240,96,.08)',stroke:'#c8f060','stroke-width':'.8'});
+          hl.appendChild(vp);
+        }else{
+          hl.appendChild(ns('rect',{
+            x:(fb.x-.5).toFixed(3),y:(fb.y-.5).toFixed(3),
+            width:(fb.w+1).toFixed(3),height:(fb.h+1).toFixed(3),
+            fill:'rgba(200,240,96,.08)',stroke:'#c8f060','stroke-width':'.8'
+          }));
+        }
+        target.appendChild(hl);
+      }
+    }
+    // Face labels
+    Object.entries(boxes).forEach(([id,fb])=>{
+      if(!faceData[id]?.svgStr){
+        const cx=fb.x+fb.w/2, cy=fb.y+fb.h/2;
+        const t=ns('text',{x:cx.toFixed(2),y:cy.toFixed(2),fill:'#bbb',
+          'font-size':'3.2','font-family':'monospace','text-anchor':'middle',
+          'dominant-baseline':'middle','pointer-events':'none'});
+        t.textContent=id;target.appendChild(t);
+      }
+    });
+    requestAnimationFrame(()=>rebuildOverlay(boxes));
+  }
+
+  // ── UI update ─────────────────────────────────────────────────
+  const fits = pLeft>=MARGIN&&pTop>=MARGIN&&pRight<=PW-MARGIN&&pBot<=PH-MARGIN;
+  g('fitVal').textContent=`${(pRight-pLeft).toFixed(0)}×${(pBot-pTop).toFixed(0)} mm`;
+  g('fitVal').style.color=fits?'var(--accent)':'var(--danger)';
+  g('infoSide').textContent=`${s.toFixed(1)} mm`;
+  g('lblCote').textContent=(N<=2)?'Rayon':'Côté';
+  
+  const polyName=POLY_NAMES[N]||`${N}-gone`;
+  const internalAngle=N>=3?(N-2)*180/N:0;
+  g('infoPolygon').textContent=polyName;
+  g('infoAngle').textContent=N>=3?`${internalAngle.toFixed(1)}°`:(N===1?'360°':'—');
+  g('headerFaces').textContent=`— ${N<=2?polyName:N+' faces'} · ${polyName}`;
+  // Label slider dynamique
+  g('lblR').childNodes[0].textContent=(N<=2)?'Rayon R (mm) ':' Côté s (mm) ';
+
+  const bandWlabel=(N===1)?`${L.circ.toFixed(0)}×${rectH.toFixed(1)}`:(N===2)?`${L.bandW.toFixed(0)}×${rectH.toFixed(1)}`:`${(s*N).toFixed(0)}×${rectH.toFixed(1)}`;
+  g('dimInfo').textContent=`Band. ${bandWlabel} mm · ${N<=2?'R':'s'} ${s.toFixed(0)} mm · ${polyName}`;
+
+  const Rc_v=(N>=3)?s/(2*Math.sin(Math.PI/N)):s;
+  g('geoInfo').innerHTML=
+    (N===1?
+      `Forme = cylindre<br>`+
+      `Rayon R = ${s.toFixed(1)} mm<br>`+
+      `Périmètre = ${(2*Math.PI*s).toFixed(1)} mm<br>`+
+      `Bandeau = ${(2*Math.PI*s).toFixed(1)}×${rectH.toFixed(1)} mm<br>`
+    :N===2?
+      `Forme = vesica piscis<br>`+
+      `Côté s = ${s.toFixed(1)} mm<br>`+
+      `Amande : h = s√3 = ${(s*Math.sqrt(3)).toFixed(1)} mm<br>`+
+      `Arc développé = ${(2*Math.PI*s/3).toFixed(1)} mm<br>`+
+      `Bandeau = ${L.bandW.toFixed(1)}×${rectH.toFixed(1)} mm<br>`+
+      `H max (s=${s}) = ${Math.floor(PH-2*MARGIN-s-L.G-2*S.T)} mm<br>`
+    :
+      `N faces = ${N} (${polyName})<br>`+
+      `Côté s = ${s.toFixed(1)} mm<br>`+
+      `Rayon circumscrit = ${Rc_v.toFixed(1)} mm<br>`+
+      `Apothème = ${(s/(2*Math.tan(Math.PI/N))).toFixed(1)} mm<br>`+
+      `Polygone W×H = ${L.polyW.toFixed(1)}×${L.polyH.toFixed(1)} mm<br>`+
+      `Bandeau = ${(s*N).toFixed(0)}×${rectH.toFixed(1)} mm<br>`
+    )+
+    `Languette = ${S.T} mm / ${S.A}°`;
+
+  if(!fits) g('sbar').textContent=`⚠ Débordement — réduire s ou H, ou utiliser ⊡ Optimiser`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HTML OVERLAY
+// ═══════════════════════════════════════════════════════════════
+let overlayDivs={};
+let overlayBuilt=false;
+let _currentFaceIDs=[];
+
+function getFaceIDs(N){
+  const ids=[];
+  const nFaces=(N===1)?1:(N===2)?2:N;
+  for(let i=1;i<=nFaces;i++) ids.push(`R${i}`);
+  ids.push('P1','P2');
+  return ids;
+}
+
+function rebuildOverlayDivs(N){
+  const pw=g('pw');
+  let oc=g('overlay-container');
+  if(oc) oc.remove();
+  oc=document.createElement('div');
+  oc.id='overlay-container';
+  oc.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10';
+  pw.appendChild(oc);
+  overlayDivs={};
+  overlayBuilt=true;
+
+  const FACE_IDS=getFaceIDs(N);
+  _currentFaceIDs=FACE_IDS;
+
+  FACE_IDS.forEach(id=>{
+    const div=document.createElement('div');
+    div.dataset.faceid=id;
+    div.style.cssText='position:absolute;pointer-events:all;cursor:pointer;box-sizing:border-box;';
+    div.addEventListener('mousedown',e=>{
+      if(e.button!==0)return;
+      e.stopPropagation();e.preventDefault();
+      const now=Date.now();
+      const last=div._lastDown||0;
+      div._lastDown=now;
+      if(now-last<320){
+        div._lastDown=0;
+        clearTimeout(div._clickTimer);
+        S.selectedFace=id;
+        buildSVG(g('sp'),false);
+        g('faceFile').click();
+        return;
+      }
+      if(S.selectedFace===id&&faceData[id]?.svgStr){
+        const p=svgCoord(e);
+        const fd=faceData[id];
+        artDrag={id,sm:p,stx:{tx:fd.tx,ty:fd.ty,scX:fd.scX,scY:fd.scY,scale:fd.scale}};
+        div.style.cursor='grabbing';
+      }else{
+        clearTimeout(div._clickTimer);
+        div._clickTimer=setTimeout(()=>selectFace(id),300);
+      }
+    });
+    div.addEventListener('contextmenu',e=>{
+      e.preventDefault();e.stopPropagation();
+      clearTimeout(div._clickTimer);
+      S.selectedFace=id;
+      if(faceData[id]?.svgStr) ftMode('fit');
+      else selectFace(id);
+    });
+    oc.appendChild(div);
+    overlayDivs[id]=div;
+  });
+}
+
+function ensureOverlay(N){
+  const ids=getFaceIDs(N).join(',');
+  if(_currentFaceIDs.join(',')===ids&&overlayBuilt)return;
+  rebuildOverlayDivs(N);
+}
+
+function rebuildOverlay(boxes){
+  ensureOverlay(S.N);
+  updateOverlayPositions(boxes);
+}
+
+function updateOverlayPositions(boxes){
+  if(!boxes){const L=computeLayout();boxes=getFaceBoxes(L);}
+  Object.entries(overlayDivs).forEach(([id,div])=>{
+    const fb=boxes[id];if(!fb)return;
+    div.style.left=(cam.tx+fb.x*cam.scale).toFixed(1)+'px';
+    div.style.top =(cam.ty+fb.y*cam.scale).toFixed(1)+'px';
+    div.style.width =(fb.w*cam.scale).toFixed(1)+'px';
+    div.style.height=(fb.h*cam.scale).toFixed(1)+'px';
+    if(!artDrag||artDrag.id!==id) div.style.cursor='pointer';
+  });
+}
+
+function selectFace(id){
+  S.selectedFace=id;
+  buildSVG(g('sp'),false);
+  const fd=faceData[id];
+  g('sbar').textContent=fd?.svgStr
+    ?`${id} — glisser: déplacer · molette: zoom · clic-droit: fit · dbl-clic: changer SVG`
+    :`${id} — double-cliquer pour importer un SVG`;
+}
+
+function ftMode(m){
+  if(!S.selectedFace)return;
+  const fd=faceData[S.selectedFace];if(!fd?.svgStr)return;
+  const fb=getFaceBoxes(computeLayout())[S.selectedFace];
+  const t=computeDefaultTx(fb,fd.vb,m);
+  fd.tx=t.tx;fd.ty=t.ty;fd.scX=t.scX;fd.scY=t.scY;fd.scale=t.scale;fd.mode=m;
+  buildSVG(g('sp'),false);
+}
+function ftClear(){
+  if(!S.selectedFace)return;
+  delete faceData[S.selectedFace];
+  buildSVG(g('sp'),false);
+  g('sbar').textContent=`${S.selectedFace} — dessin supprimé`;
+}
+
+let artDrag=null;
+function svgCoord(e){
+  const r=g('pw').getBoundingClientRect();
+  return{x:(e.clientX-r.left-cam.tx)/cam.scale, y:(e.clientY-r.top-cam.ty)/cam.scale};
+}
+
+let cam={tx:0,ty:0,scale:1}, mainPan=false, mainLast={x:0,y:0};
+function applyTx(){
+  g('ci').style.transform=`translate(${cam.tx.toFixed(2)}px,${cam.ty.toFixed(2)}px) scale(${cam.scale.toFixed(4)})`;
+  g('zoomPct').textContent=`${Math.round(cam.scale*100)}%`;
+  updateOverlayPositions();
+}
+function mainFitView(){
+  const w=g('pw');
+  cam.scale=Math.min((w.clientWidth-18)/PW,(w.clientHeight-18)/PH);
+  cam.tx=(w.clientWidth-PW*cam.scale)/2;
+  cam.ty=(w.clientHeight-PH*cam.scale)/2;
+  applyTx();
+}
+function mainResetZoom(){
+  const w=g('pw');
+  cam.scale=1;cam.tx=(w.clientWidth-PW)/2;cam.ty=(w.clientHeight-PH)/2;
+  applyTx();
+}
+function mainZoomBy(f,cx,cy){
+  const w=g('pw');
+  const ox=cx!==undefined?cx:w.clientWidth/2, oy=cy!==undefined?cy:w.clientHeight/2;
+  const ns2=Math.min(Math.max(cam.scale*f,.04),20);
+  cam.tx=ox-(ox-cam.tx)*ns2/cam.scale;
+  cam.ty=oy-(oy-cam.ty)*ns2/cam.scale;
+  cam.scale=ns2;
+  applyTx();
+}
+
+function initEvents(){
+  const pw=g('pw');
+  pw.addEventListener('wheel',e=>{
+    e.preventDefault();
+    const fd=S.selectedFace?faceData[S.selectedFace]:null;
+    if(fd?.svgStr){
+      const p=svgCoord(e);
+      const f=e.deltaY<0?1.12:1/1.12;
+      const curSc=fd.scale!=null?fd.scale:Math.sqrt((fd.scX||1)*(fd.scY||1));
+      const ns2=Math.max(0.0001,curSc*f);
+      const ratio=ns2/curSc;
+      fd.tx=p.x-(p.x-fd.tx)*ratio;
+      fd.ty=p.y-(p.y-fd.ty)*ratio;
+      fd.scX=(fd.scX||curSc)*ratio;
+      fd.scY=(fd.scY||curSc)*ratio;
+      fd.scale=null;
+      fd.mode='custom';
+      buildSVG(g('sp'),false);
+    }else{
+      const r=pw.getBoundingClientRect();
+      mainZoomBy(e.deltaY<0?1.12:1/1.12,e.clientX-r.left,e.clientY-r.top);
+    }
+  },{passive:false});
+  pw.addEventListener('mousedown',e=>{
+    if(e.button!==0)return;
+    if(e.target.dataset?.faceid)return;
+    mainPan=true;mainLast={x:e.clientX,y:e.clientY};pw.style.cursor='grabbing';
+    S.selectedFace=null;
+    buildSVG(g('sp'),false);
+  });
+  window.addEventListener('mousemove',e=>{
+    if(artDrag){
+      const p=svgCoord(e);
+      const fd=faceData[artDrag.id];
+      if(fd){
+        fd.tx=artDrag.stx.tx+(p.x-artDrag.sm.x);
+        fd.ty=artDrag.stx.ty+(p.y-artDrag.sm.y);
+        fd.mode='custom';
+        buildSVG(g('sp'),false);
+      }
+      return;
+    }
+    if(mainPan){
+      cam.tx+=e.clientX-mainLast.x;cam.ty+=e.clientY-mainLast.y;
+      mainLast={x:e.clientX,y:e.clientY};applyTx();
+    }
+  });
+  window.addEventListener('mouseup',e=>{
+    if(artDrag){
+      const div=overlayDivs[artDrag.id];
+      if(div)div.style.cursor='pointer';
+      artDrag=null;
+    }
+    if(mainPan){mainPan=false;pw.style.cursor='default';}
+  });
+  pw.addEventListener('contextmenu',e=>e.preventDefault());
+}
+
+function onFaceFile(e){
+  const f=e.target.files[0];if(!f||!S.selectedFace)return;
+  e.target.value='';
+  const r=new FileReader();
+  r.onload=ev=>{
+    const id=S.selectedFace;
+    const vb=parseSVGVB(ev.target.result);
+    faceData[id]={svgStr:ev.target.result,vb,mode:'fit',tx:undefined,ty:undefined,scX:undefined,scY:undefined,scale:undefined};
+    const L=computeLayout();ensureTx(id,L);
+    buildSVG(g('sp'),false);
+    selectFace(id);
+    g('sbar').textContent=`${id} : SVG ${vb.w.toFixed(0)}×${vb.h.toFixed(0)} importé`;
+  };
+  r.readAsText(f);
+}
+
+function exportSVG(){
+  const suggested=`prisme${S.N}_s${S.R}_H${Math.round(S.H)}`;
+  g('exportFilename').value=suggested;
+  g('exportModal').classList.add('open');
+  setTimeout(()=>{const inp=g('exportFilename');inp.focus();inp.select();},50);
+}
+function closeExportModal(){g('exportModal').classList.remove('open');}
+// ═══════════════════════════════════════════════════════════════
+// CLIPPING VECTORIEL — Sutherland-Hodgman + SVG path parsing
+// Clip chaque path SVG du dessin au contour de la face,
+// sans bibliothèque externe, directement dans le navigateur.
+// ═══════════════════════════════════════════════════════════════
+
+// Convertit un SVG path en liste de polylignes [[x,y]...]
+// en utilisant un SVGPathElement temporaire dans le DOM
+function pathToPolyline(d, step=1.5){
+  try{
+    const tmp=document.createElementNS('http://www.w3.org/2000/svg','path');
+    tmp.setAttribute('d',d);
+    document.body.appendChild(tmp);
+    const len=tmp.getTotalLength();
+    if(len<=0){document.body.removeChild(tmp);return[];}
+    const pts=[];
+    for(let l=0;l<=len;l+=step){
+      const p=tmp.getPointAtLength(l);
+      pts.push([p.x,p.y]);
+    }
+    // Ajouter le point final exact
+    const pEnd=tmp.getPointAtLength(len);
+    pts.push([pEnd.x,pEnd.y]);
+    document.body.removeChild(tmp);
+    return pts;
+  }catch(e){return[];}
+}
+
+// Sutherland-Hodgman : clip une polyligne contre un demi-espace (bord de polygone)
+function clipPolylineAgainstEdge(pts, x1,y1, x2,y2){
+  // Le demi-espace "intérieur" est à gauche du vecteur (x1,y1)→(x2,y2)
+  const inside=(x,y)=>(x2-x1)*(y-y1)-(y2-y1)*(x-x1)>=0;
+  const intersect=(ax,ay,bx,by)=>{
+    const dx=bx-ax,dy=by-ay,ex=x2-x1,ey=y2-y1;
+    const denom=dx*ey-dy*ex;
+    if(Math.abs(denom)<1e-10)return[ax,ay];
+    const t=((x1-ax)*ey-(y1-ay)*ex)/denom;
+    return[ax+t*dx,ay+t*dy];
+  };
+  const result=[];
+  for(let i=0;i<pts.length-1;i++){
+    const [ax,ay]=pts[i],[bx,by]=pts[i+1];
+    const inA=inside(ax,ay),inB=inside(bx,by);
+    if(inA){result.push([ax,ay]);if(!inB)result.push(intersect(ax,ay,bx,by));}
+    else if(inB){result.push(intersect(ax,ay,bx,by));}
+  }
+  if(pts.length>0&&inside(...pts[pts.length-1]))result.push(pts[pts.length-1]);
+  return result;
+}
+
+// Clip une polyligne contre un polygone convexe (liste de sommets ccw ou cw)
+function clipPolylineToPolygon(pts, clipPoly){
+  // Découpe en segments en testant chaque bord
+  let current=pts;
+  const n=clipPoly.length;
+  for(let i=0;i<n;i++){
+    if(current.length===0)break;
+    const [x1,y1]=clipPoly[i],[x2,y2]=clipPoly[(i+1)%n];
+    current=clipPolylineAgainstEdge(current,x1,y1,x2,y2);
+  }
+  return current;
+}
+
+// Clip une polyligne contre un rectangle (face rectangulaire)
+function clipPolylineToRect(pts, x,y,w,h){
+  const poly=[[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
+  return clipPolylineToPolygon(pts,poly);
+}
+
+// Clip contre un cercle : garder les segments dont le point médian est dans le cercle
+function clipPolylineToCircle(pts, cx,cy,r){
+  const inside=(x,y)=>(x-cx)**2+(y-cy)**2<=r*r;
+  const intersectCircle=(ax,ay,bx,by)=>{
+    // Intersection segment AB avec cercle (cx,cy,r)
+    const dx=bx-ax,dy=by-ay;
+    const fx=ax-cx,fy=ay-cy;
+    const a2=dx*dx+dy*dy;
+    const b2=2*(fx*dx+fy*dy);
+    const c2=fx*fx+fy*fy-r*r;
+    const disc=b2*b2-4*a2*c2;
+    if(disc<0)return null;
+    const sq=Math.sqrt(disc);
+    const t1=(-b2-sq)/(2*a2),t2=(-b2+sq)/(2*a2);
+    const ts=[t1,t2].filter(t=>t>=0&&t<=1).sort((a,b)=>a-b);
+    return ts.map(t=>[ax+t*dx,ay+t*dy]);
+  };
+  const result=[];
+  for(let i=0;i<pts.length-1;i++){
+    const [ax,ay]=pts[i],[bx,by]=pts[i+1];
+    const inA=inside(ax,ay),inB=inside(bx,by);
+    if(inA&&inB){result.push([ax,ay]);}
+    else if(inA&&!inB){
+      result.push([ax,ay]);
+      const xs=intersectCircle(ax,ay,bx,by);
+      if(xs&&xs.length>0)result.push(xs[xs.length-1]);
+      result.push(null); // coupure
+    }else if(!inA&&inB){
+      const xs=intersectCircle(ax,ay,bx,by);
+      if(xs&&xs.length>0)result.push(xs[0]);
+    }else{
+      // Les deux dehors : peut-il y avoir un segment intérieur ?
+      const xs=intersectCircle(ax,ay,bx,by);
+      if(xs&&xs.length===2){result.push(xs[0]);result.push(xs[1]);result.push(null);}
+    }
+  }
+  if(pts.length>0&&inside(...pts[pts.length-1]))result.push(pts[pts.length-1]);
+  return result;
+}
+
+// Convertit une liste de points (avec null=coupure) en path SVG
+function polylineToPath(pts){
+  if(!pts||pts.length===0)return'';
+  let d='',inPath=false;
+  for(const p of pts){
+    if(p===null){inPath=false;continue;}
+    if(!inPath){d+=`M${p[0].toFixed(2)},${p[1].toFixed(2)}`;inPath=true;}
+    else d+=`L${p[0].toFixed(2)},${p[1].toFixed(2)}`;
+  }
+  return d;
+}
+
+// Clip tous les paths d'un SVG source contre une face, retourne un SVGGElement
+function clipSVGToFace(svgStr, tx, ty, scX, scY, fb, L, verts1, verts2, s, N){
+  const doc2=new DOMParser().parseFromString(svgStr,'image/svg+xml');
+  const inner=doc2.documentElement;
+  if(!inner||inner.querySelector('parsererror'))return null;
+
+  const g2=document.createElementNS('http://www.w3.org/2000/svg','g');
+
+  // Collecter tous les paths du SVG source
+  const paths=[...inner.querySelectorAll('path,line,polyline,polygon,circle,ellipse,rect')];
+
+  // Créer un SVG temporaire pour calculer les coordonnées transformées
+  const tmpSVG=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  tmpSVG.setAttribute('style','position:absolute;visibility:hidden;width:0;height:0');
+  document.body.appendChild(tmpSVG);
+
+  paths.forEach(el=>{
+    try{
+      // Obtenir le path data (convertir via un path temporaire)
+      let d='';
+      const tag=el.tagName.toLowerCase();
+      if(tag==='path') d=el.getAttribute('d')||'';
+      else if(tag==='line') d=`M${el.getAttribute('x1')},${el.getAttribute('y1')}L${el.getAttribute('x2')},${el.getAttribute('y2')}`;
+      else if(tag==='rect'){const rx=el.getAttribute('x')||0,ry=el.getAttribute('y')||0,rw=el.getAttribute('width')||0,rh=el.getAttribute('height')||0;d=`M${rx},${ry}h${rw}v${rh}h${-rw}Z`;}
+      else return;
+
+      if(!d)return;
+
+      // Appliquer la transformation du gabarit au path
+      const pEl=document.createElementNS('http://www.w3.org/2000/svg','path');
+      pEl.setAttribute('d',d);
+      pEl.setAttribute('transform',`translate(${tx},${ty}) scale(${scX},${scY})`);
+      tmpSVG.appendChild(pEl);
+
+      // Discrétiser le path transformé
+      const pts=pathToPolyline(d.replace(/,/g,' '),1.0).map(([px,py])=>[px*scX+tx, py*scY+ty]);
+      tmpSVG.removeChild(pEl);
+
+      if(pts.length<2)return;
+
+      // Clipper selon le type de face
+      let clipped;
+      if(fb.type==='circle'){
+        clipped=clipPolylineToCircle(pts,fb.cx,fb.cy,L.R);
+      } else if(fb.type==='rect'){
+        clipped=clipPolylineToRect(pts,fb.x,fb.y,fb.w,fb.h);
+      } else if(fb.type==='poly'){
+        const vts=(fb.cx===L.p1cx&&fb.cy===L.p1cy)?verts1:verts2;
+        clipped=clipPolylineToPolygon(pts,vts);
+      } else if(fb.type==='vesica'){
+        // Approximer la vesica par un polygone convexe (24 pts)
+        const vesH2=fb.h/2; const vesW2=fb.w/2;
+        const vesPoly=Array.from({length:24},(_,k)=>{
+          const t=k/24;
+          if(t<0.5){const a=Math.PI+t*2*Math.PI;return[fb.cx+s/2+s*Math.cos(a),fb.cy+s*Math.sin(a)];}
+          else{const a=(t-0.5)*2*Math.PI;return[fb.cx-s/2+s*Math.cos(a),fb.cy+s*Math.sin(a)];}
+        });
+        clipped=clipPolylineToPolygon(pts,vesPoly);
+      } else {
+        clipped=pts;
+      }
+
+      const pathD=polylineToPath(clipped);
+      if(!pathD)return;
+
+      const newPath=document.createElementNS('http://www.w3.org/2000/svg','path');
+      newPath.setAttribute('d',pathD);
+      // Copier le style
+      const stroke=el.getAttribute('stroke')||el.style.stroke||'#000';
+      const sw=el.getAttribute('stroke-width')||el.style.strokeWidth||'0.5';
+      const fill=el.getAttribute('fill')||el.style.fill||'none';
+      newPath.setAttribute('stroke',stroke==='none'?'#000':stroke);
+      newPath.setAttribute('stroke-width',sw);
+      newPath.setAttribute('fill','none');
+      newPath.setAttribute('stroke-linecap','round');
+      newPath.setAttribute('stroke-linejoin','round');
+      g2.appendChild(newPath);
+    }catch(e){}
+  });
+
+  document.body.removeChild(tmpSVG);
+  return g2;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORT VECTORIEL — Web Worker + Sutherland-Hodgman
+// Tout le calcul se fait dans un thread séparé (UI non bloquée)
+// Le SVG exporté contient des paths purs, sans clipPath.
+// ═══════════════════════════════════════════════════════════════
+
+const WORKER_CODE = `
+function clipLineAgainstEdge(pts,x1,y1,x2,y2){
+  const ins=(x,y)=>(x2-x1)*(y-y1)-(y2-y1)*(x-x1)>=0;
+  const isc=(ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,ex=x2-x1,ey=y2-y1,d=dx*ey-dy*ex;if(Math.abs(d)<1e-10)return[ax,ay];const t=((x1-ax)*ey-(y1-ay)*ex)/d;return[ax+t*dx,ay+t*dy];};
+  const out=[];
+  for(let i=0;i<pts.length-1;i++){const[ax,ay]=pts[i],[bx,by]=pts[i+1],ia=ins(ax,ay),ib=ins(bx,by);if(ia){out.push([ax,ay]);if(!ib)out.push(isc(ax,ay,bx,by));}else if(ib)out.push(isc(ax,ay,bx,by));}
+  if(pts.length>0&&ins(...pts[pts.length-1]))out.push(pts[pts.length-1]);
+  return out;
+}
+function clipToPolygon(pts,poly){let cur=pts;for(let i=0;i<poly.length;i++){if(!cur.length)break;const[x1,y1]=poly[i],[x2,y2]=poly[(i+1)%poly.length];cur=clipLineAgainstEdge(cur,x1,y1,x2,y2);}return cur;}
+function clipToCircle(pts,cx,cy,r){
+  const ins=(x,y)=>(x-cx)**2+(y-cy)**2<=r*r+1e-9;
+  const isc=(ax,ay,bx,by)=>{const dx=bx-ax,dy=by-ay,fx=ax-cx,fy=ay-cy,a2=dx*dx+dy*dy,b2=2*(fx*dx+fy*dy),c2=fx*fx+fy*fy-r*r,disc=b2*b2-4*a2*c2;if(disc<0)return[];const sq=Math.sqrt(disc);return[(-b2-sq)/(2*a2),(-b2+sq)/(2*a2)].filter(t=>t>=0&&t<=1).sort((a,b)=>a-b).map(t=>[ax+t*dx,ay+t*dy]);};
+  const out=[];
+  for(let i=0;i<pts.length-1;i++){const[ax,ay]=pts[i],[bx,by]=pts[i+1],ia=ins(ax,ay),ib=ins(bx,by);if(ia&&ib)out.push([ax,ay]);else if(ia){out.push([ax,ay]);const xs=isc(ax,ay,bx,by);if(xs.length)out.push(xs[xs.length-1]);out.push(null);}else if(ib){const xs=isc(ax,ay,bx,by);if(xs.length)out.push(xs[0]);}else{const xs=isc(ax,ay,bx,by);if(xs.length>=2){out.push(xs[0]);out.push(xs[1]);out.push(null);}}}
+  if(pts.length&&ins(...pts[pts.length-1]))out.push(pts[pts.length-1]);
+  return out;
+}
+function parsePath(d,step){
+  const segs=[];let cx=0,cy=0,sx=0,sy=0,cur=[];
+  const flush=()=>{if(cur.length>=2)segs.push([...cur]);cur=[];};
+  const re=/([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)/g;let m;
+  while((m=re.exec(d))!==null){
+    const cmd=m[1],args=m[2].trim().split(/[\s,]+/).filter(Boolean).map(Number),c=cmd.toLowerCase();
+    if(c==='m'){flush();let i=0;while(i<args.length){const nx=cmd==='M'?args[i]:cx+args[i],ny=cmd==='M'?args[i+1]:cy+args[i+1];cur.push([nx,ny]);cx=nx;cy=ny;if(i===0){sx=nx;sy=ny;}i+=2;}}
+    else if(c==='l'){let i=0;while(i<args.length){const nx=cmd==='L'?args[i]:cx+args[i],ny=cmd==='L'?args[i+1]:cy+args[i+1];cur.push([nx,ny]);cx=nx;cy=ny;i+=2;}}
+    else if(c==='h'){for(const a of args){const nx=cmd==='H'?a:cx+a;cur.push([nx,cy]);cx=nx;}}
+    else if(c==='v'){for(const a of args){const ny=cmd==='V'?a:cy+a;cur.push([cx,ny]);cy=ny;}}
+    else if(c==='c'){let i=0;while(i+5<args.length){const abs=cmd==='C',x1=abs?args[i]:cx+args[i],y1=abs?args[i+1]:cy+args[i+1],x2=abs?args[i+2]:cx+args[i+2],y2=abs?args[i+3]:cy+args[i+3],xe=abs?args[i+4]:cx+args[i+4],ye=abs?args[i+5]:cy+args[i+5];const n=Math.max(4,Math.ceil(Math.hypot(xe-cx,ye-cy)/step));for(let t=1;t<=n;t++){const u=t/n,v=1-u;cur.push([v*v*v*cx+3*v*v*u*x1+3*v*u*u*x2+u*u*u*xe,v*v*v*cy+3*v*v*u*y1+3*v*u*u*y2+u*u*u*ye]);}cx=xe;cy=ye;i+=6;}}
+    else if(c==='q'){let i=0;while(i+3<args.length){const abs=cmd==='Q',x1=abs?args[i]:cx+args[i],y1=abs?args[i+1]:cy+args[i+1],xe=abs?args[i+2]:cx+args[i+2],ye=abs?args[i+3]:cy+args[i+3];const n=Math.max(3,Math.ceil(Math.hypot(xe-cx,ye-cy)/step));for(let t=1;t<=n;t++){const u=t/n,v=1-u;cur.push([v*v*cx+2*v*u*x1+u*u*xe,v*v*cy+2*v*u*y1+u*u*ye]);}cx=xe;cy=ye;i+=4;}}
+    else if(c==='a'){let i=0;while(i+6<args.length){const abs=cmd==='A',rx=Math.abs(args[i]),ry=Math.abs(args[i+1]),xr=args[i+2]*Math.PI/180,laf=args[i+3],sf=args[i+4],xe=abs?args[i+5]:cx+args[i+5],ye=abs?args[i+6]:cy+args[i+6];if(xe===cx&&ye===cy){i+=7;continue;}const cos=Math.cos(xr),sin=Math.sin(xr),mx=(cx-xe)/2,my=(cy-ye)/2,x1p=cos*mx+sin*my,y1p=-sin*mx+cos*my,num=Math.max(0,rx*rx*ry*ry-rx*rx*y1p*y1p-ry*ry*x1p*x1p),den=rx*rx*y1p*y1p+ry*ry*x1p*x1p,sq=den>0?Math.sqrt(num/den):0,k=(laf===sf?-sq:sq),cxp=k*rx*y1p/ry,cyp=-k*ry*x1p/rx,ccx=cos*cxp-sin*cyp+(cx+xe)/2,ccy=sin*cxp+cos*cyp+(cy+ye)/2;let a0=Math.atan2((y1p-cyp)/ry,(x1p-cxp)/rx),da=Math.atan2((-y1p-cyp)/ry,(-x1p-cxp)/rx)-a0;if(sf===0&&da>0)da-=2*Math.PI;else if(sf===1&&da<0)da+=2*Math.PI;const n=Math.max(4,Math.ceil(Math.abs(da)*Math.max(rx,ry)/step));for(let t=1;t<=n;t++){const a=a0+da*t/n;cur.push([cos*rx*Math.cos(a)-sin*ry*Math.sin(a)+ccx,sin*rx*Math.cos(a)+cos*ry*Math.sin(a)+ccy]);}cx=xe;cy=ye;i+=7;}}
+    else if(c==='s'){let i=0;while(i+3<args.length){const abs=cmd==='S',xe=abs?args[i+2]:cx+args[i+2],ye=abs?args[i+3]:cy+args[i+3];cur.push([xe,ye]);cx=xe;cy=ye;i+=4;}}
+    else if(c==='t'){let i=0;while(i+1<args.length){const abs=cmd==='T',xe=abs?args[i]:cx+args[i],ye=abs?args[i+1]:cy+args[i+1];cur.push([xe,ye]);cx=xe;cy=ye;i+=2;}}
+    else if(c==='z'){if(sx!==cx||sy!==cy)cur.push([sx,sy]);flush();cx=sx;cy=sy;}
+  }
+  flush();return segs;
+}
+function ptsToD(pts){if(!pts||!pts.length)return'';let d='',pen=false;for(const p of pts){if(!p){pen=false;continue;}d+=pen?'L'+p[0].toFixed(2)+','+p[1].toFixed(2):'M'+p[0].toFixed(2)+','+p[1].toFixed(2);pen=true;}return d;}
+self.onmessage=function(ev){
+  const{faces,STEP}=ev.data;
+  let total=0;faces.forEach(f=>total+=f.pathData.length);
+  let done=0;const t0=Date.now();const result=[];
+  for(const{id,tx,ty,scX,scY,clipPoly,isCircle,circCx,circCy,circR,pathData} of faces){
+    const out=[];
+    for(const{d,stroke,sw} of pathData){
+      const step=STEP/Math.max(scX,scY,0.001);
+      const segs=parsePath(d,step);
+      for(const seg of segs){
+        const tpts=seg.map(([x,y])=>[x*scX+tx,y*scY+ty]);
+        const cl=isCircle?clipToCircle(tpts,circCx,circCy,circR):clipToPolygon(tpts,clipPoly);
+        const pd=ptsToD(cl);if(pd)out.push({d:pd,stroke,sw});
+      }
+      done++;
+      if(done%30===0){const el=(Date.now()-t0)/1000,rate=el>0?done/el:1,rem=Math.round((total-done)/rate);self.postMessage({type:'progress',done,total,pct:Math.round(done/total*100),rem});}
+    }
+    result.push({id,paths:out});
+  }
+  self.postMessage({type:'done',result});
+};
+`;
+
+let _exportWorker=null;
+
+function confirmExport(){
+  let name=g('exportFilename').value.trim();
+  if(!name) name=`prisme${S.N}_s${S.R}_H${Math.round(S.H)}`;
+  if(!name.toLowerCase().endsWith('.svg')) name+='.svg';
+  closeExportModal();
+  g('sbar').textContent='⏳ Préparation de l\'export…';
+
+  const expEl=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  buildSVG(expEl,true);
+  const existingArt=expEl.getElementById('layer_art');
+  if(existingArt) existingArt.parentNode.removeChild(existingArt);
+
+  const L=computeLayout();const boxes=getFaceBoxes(L);
+  const facesW=[];
+
+  Object.entries(boxes).forEach(([id,fb])=>{
+    const fd=faceData[id];
+    if(!fd?.svgStr)return;
+    const fdx=ensureTx(id,L);
+    if(!fdx)return;
+    const scX=fdx.scX!=null?fdx.scX:(fdx.scale||1),scY=fdx.scY!=null?fdx.scY:(fdx.scale||1);
+    const src=new DOMParser().parseFromString(fd.svgStr,'image/svg+xml').querySelector('svg');if(!src)return;
+    let isCircle=false,circCx=0,circCy=0,circR=0,clipPoly=null;
+    let isVesica=false,vesC1x=0,vesC1y=0,vesC2x=0,vesC2y=0,vesR=0;
+    if(fb.type==='circle'){isCircle=true;circCx=fb.cx;circCy=fb.cy;circR=L.R;}
+    else if(fb.type==='rect')clipPoly=[[fb.x,fb.y],[fb.x+fb.w,fb.y],[fb.x+fb.w,fb.y+fb.h],[fb.x,fb.y+fb.h]];
+    else if(fb.type==='poly'){const v=(id==='P1')?L.verts1:L.verts2;clipPoly=v.map(p=>[...p]);}
+    else if(fb.type==='vesica'){
+      // La vesica est l'intersection de deux disques de rayon s
+      // On stocke les deux centres pour double clipping
+      isVesica=true;
+      vesC1x=fb.cx; vesC1y=fb.cy-S.R/2;  // centre arc supérieur
+      vesC2x=fb.cx; vesC2y=fb.cy+S.R/2;  // centre arc inférieur
+      vesR=S.R;
+    }
+
+    // Collecter TOUS les paths récursivement (y compris dans les groupes imbriqués)
+    const pathData=[];
+    function collectPaths(node, inheritedTransform){
+      if(node.nodeType!==1)return;
+      const tag=node.tagName.toLowerCase();
+      // Accumuler les transforms (simplifié : on ignore les transforms intermédiaires pour l'instant)
+      let d='';
+      if(tag==='path')d=node.getAttribute('d')||'';
+      else if(tag==='line')d=`M${node.getAttribute('x1')||0},${node.getAttribute('y1')||0}L${node.getAttribute('x2')||0},${node.getAttribute('y2')||0}`;
+      else if(tag==='rect'){const x=+node.getAttribute('x')||0,y=+node.getAttribute('y')||0,w=+node.getAttribute('width')||0,h=+node.getAttribute('height')||0;if(w&&h)d=`M${x},${y}h${w}v${h}h${-w}Z`;}
+      else if(tag==='circle'){const cx=+node.getAttribute('cx')||0,cy=+node.getAttribute('cy')||0,r=+node.getAttribute('r')||0;if(r)d=`M${cx-r},${cy}a${r},${r} 0 1,0 ${2*r},0a${r},${r} 0 1,0 ${-2*r},0`;}
+      else if(tag==='ellipse'){const cx=+node.getAttribute('cx')||0,cy=+node.getAttribute('cy')||0,rx=+node.getAttribute('rx')||0,ry2=+node.getAttribute('ry')||0;if(rx&&ry2)d=`M${cx-rx},${cy}a${rx},${ry2} 0 1,0 ${2*rx},0a${rx},${ry2} 0 1,0 ${-2*rx},0`;}
+      if(d.trim()){
+        const stroke=node.getAttribute('stroke')||node.closest('[stroke]')?.getAttribute('stroke')||'#000';
+        const sw=node.getAttribute('stroke-width')||node.closest('[stroke-width]')?.getAttribute('stroke-width')||'0.5';
+        pathData.push({d,stroke:stroke==='none'?'#000':stroke,sw});
+      }
+      // Descendre dans les enfants
+      Array.from(node.childNodes).forEach(child=>collectPaths(child));
+    }
+    Array.from(src.childNodes).forEach(n=>collectPaths(n));
+
+    if(pathData.length)facesW.push({id,tx:fdx.tx,ty:fdx.ty,scX,scY,clipPoly,isCircle,circCx,circCy,circR,isVesica,vesC1x,vesC1y,vesC2x,vesC2y,vesR,pathData});
+  });
+
+  if(!facesW.length){_doExportSVG(expEl,name);return;}
+
+  // Web Workers bloqués par la CSP — utilise requestAnimationFrame pour
+  // traiter par chunks et laisser le browser rafraîchir entre chaque face
+  const STEP=1.5;
+  const t0=Date.now();
+  const total=facesW.reduce((s,f)=>s+f.pathData.length,0);
+  let done=0;
+  const lyA=document.createElementNS('http://www.w3.org/2000/svg','g');
+  lyA.setAttribute('id','layer_art');lyA.setAttribute('inkscape:label','Dessins');lyA.setAttribute('inkscape:groupmode','layer');
+
+  function processNextFace(i){
+    if(i>=facesW.length){
+      (expEl.querySelector('g[transform*="rotate"]')||expEl).appendChild(lyA);
+      _doExportSVG(expEl,name);
+      return;
+    }
+    const{id,tx,ty,scX,scY,clipPoly,isCircle,circCx,circCy,circR,isVesica,vesC1x,vesC1y,vesC2x,vesC2y,vesR,pathData}=facesW[i];
+    const step=STEP/Math.max(scX,scY,0.001);
+    const fg=document.createElementNS('http://www.w3.org/2000/svg','g');
+    fg.setAttribute('id','dessin_'+id);
+
+    pathData.forEach(({d,stroke,sw})=>{
+      const segs=parsePathToSegs(d,step);
+      segs.forEach(seg=>{
+        const tpts=seg.map(([x,y])=>[x*scX+tx,y*scY+ty]);
+        let cl;
+        if(isVesica){
+          // Vesica = intersection de deux disques : clipper deux fois
+          const cl1=clipSegToCircle(tpts,vesC1x,vesC1y,vesR);
+          // Reconstruire des segments depuis cl1 (null = coupure)
+          const subsegs=[];let cur2=[];
+          for(const p of cl1){if(!p){if(cur2.length>=2)subsegs.push(cur2);cur2=[];}else cur2.push(p);}
+          if(cur2.length>=2)subsegs.push(cur2);
+          subsegs.forEach(ss=>{
+            const cl2=clipSegToCircle(ss,vesC2x,vesC2y,vesR);
+            const pd=segToD(cl2);
+            if(pd){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',pd);p.setAttribute('stroke',stroke);p.setAttribute('stroke-width',sw);p.setAttribute('fill','none');p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');fg.appendChild(p);}
+          });
+          return;
+        } else if(isCircle){
+          cl=clipSegToCircle(tpts,circCx,circCy,circR);
+        } else {
+          cl=clipSegToPolygon(tpts,clipPoly);
+        }
+        const pd=segToD(cl);
+        if(pd){const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',pd);p.setAttribute('stroke',stroke);p.setAttribute('stroke-width',sw);p.setAttribute('fill','none');p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');fg.appendChild(p);}
+      });
+      done++;
+    });
+    if(fg.childNodes.length)lyA.appendChild(fg);
+
+    const pct=Math.round(done/total*100);
+    const el2=(Date.now()-t0)/1000,rate=el2>0?done/el2:1,rem=Math.round((total-done)/rate);
+    const bar='█'.repeat(Math.round(pct/5))+'░'.repeat(20-Math.round(pct/5));
+    g('sbar').textContent=`⏳ ${bar} ${pct}%${rem>0?' — ≈'+rem+'s':''}`;
+
+    requestAnimationFrame(()=>processNextFace(i+1));
+  }
+  requestAnimationFrame(()=>processNextFace(0));
+}
+
+function _doExportSVG(expEl,name){
+  const serial='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(expEl);
+  const blob=new Blob([serial],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  g('sbar').textContent=`✓ ${name} — paths vectoriels clippés · prêt pour le traceur`;
+}
+
+
+function setFaces(n){
+  S.N=n;
+  S.selectedFace=null;
+  // ── Paramètres par défaut par forme ────────────────────────
+  const DEFAULTS={
+    1:{R:60, H:133, G:14},   // cylindre
+    2:{R:90, H:147, G:15},   // vesica
+    3:{R:98, H:255, G:20},   // triangle
+    4:{R:90, H:160, G:15},   // carré
+    5:{R:77, H:135, G:15},   // pentagone
+    6:{R:60, H:135, G:16},   // hexagone
+  };
+  const d=DEFAULTS[n];
+  if(d){
+    S.R=d.R; S.H=d.H; S.G=d.G;
+    g('rR').max=d.R; g('rR').value=d.R; updateVal('vR',d.R);
+    g('rH').max=d.H; g('rH').value=d.H; updateVal('vH',d.H);
+    // G max : cylindre→14, vesica→15, autres→leur défaut
+    const gMax = (n===1) ? 14 : (n<=2) ? 15 : d.G;
+    g('rG').max=gMax; g('rG').value=d.G; updateVal('vG',d.G);
+  }
+  // Update face buttons
+  [1,2,3,4,5,6].forEach(i=>{ const b=g(`fb${i}`); if(b)b.classList.toggle('active',i===n); });
+  // Clear faceData keys that no longer exist
+  const validKeys=new Set(getFaceIDs(n));
+  Object.keys(faceData).forEach(k=>{if(!validKeys.has(k))delete faceData[k];});
+  // Force overlay rebuild
+  _currentFaceIDs=[];
+  buildSVG(g('sp'),false);
+  g('sbar').textContent=`${POLY_NAMES[n]||n+'-gonal'} — ${n<=2?'Rayon':'Côté'} ${S.R} mm · Hauteur ${S.H} mm`;
+}
+
+function toggleFS(){
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+    g('btnFS').textContent='⛶ Quitter plein écran';
+  }else{
+    document.exitFullscreen();
+    g('btnFS').textContent='⛶ Plein écran';
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  if(!document.fullscreenElement) g('btnFS').textContent='⛶ Plein écran';
+  setTimeout(mainFitView,150);
+});
+
+function regen(){
+  S.R=nv('rR');
+  S.H=nv('rH');
+  S.G=nv('rG');S.T=nv('rT');S.A=nv('rA');
+  // Pour N=1 et N=2 : recalculer le H max dynamiquement selon R
+  if(S.N===2){
+    // vesicaHoriz : hauteur = s (amande couchée)
+    const vesH = S.R;
+    const hMax = Math.floor(PH - 2*MARGIN - vesH - S.G - 2*S.T);
+    const sl = g('rH');
+    if(parseFloat(sl.max) !== hMax){
+      sl.max = Math.max(hMax, 10);
+      if(S.H > hMax){ S.H = hMax; sl.value = hMax; updateVal('vH', hMax); }
+    }
+  }
+  if(S.N===1){
+    // H max cylindre : PH - 2R - G - 2T - 2*MARGIN
+    const hMax = Math.floor(PH - 2*MARGIN - 2*S.R - S.G - 2*S.T);
+    const sl = g('rH');
+    if(parseFloat(sl.max) !== hMax){
+      sl.max = Math.max(hMax, 10);
+      if(S.H > hMax){ S.H = hMax; sl.value = hMax; updateVal('vH', hMax); }
+    }
+  }
+  Object.keys(faceData).forEach(id=>{
+    const fd=faceData[id];
+    if(fd&&fd.mode!=='custom'){fd.tx=undefined;fd.ty=undefined;fd.scX=undefined;fd.scY=undefined;fd.scale=undefined;}
+  });
+  buildSVG(g('sp'),false);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  g('exportFilename').addEventListener('keydown',e=>{
+    if(e.key==='Enter') confirmExport();
+    if(e.key==='Escape') closeExportModal();
+  });
+});
+initEvents();
+// Init slider max values for default shape (hexagone)
+(function(){const d={R:60,H:135,G:16};g('rR').max=d.R;g('rH').max=d.H;g('rG').max=d.G;})();
+regen();
+requestAnimationFrame(()=>requestAnimationFrame(mainFitView));
+window.addEventListener('resize',()=>{mainFitView();});
+</script>
+
+<!-- ══ EXPORT MODAL ══ -->
+<div id="exportModal" onclick="if(event.target===this)closeExportModal()">
+  <div id="exportBox">
+    <h2>◈ Exporter le gabarit DrawingVol</h2>
+    <label for="exportFilename">Nom du fichier</label>
+    <input type="text" id="exportFilename" spellcheck="false">
+    <div class="export-hint">
+      Le navigateur vous demandera où enregistrer le fichier.<br>
+      L'extension <span style="color:var(--text)">.svg</span> sera ajoutée automatiquement si absente.
+    </div>
+    <div class="export-btns">
+      <button onclick="closeExportModal()">Annuler</button>
+      <button class="pri" onclick="confirmExport()">↓ Télécharger</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
