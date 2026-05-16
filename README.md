@@ -1,6 +1,6 @@
 # DrawingVol — Gabarit SVG de prismes pour pen plotter
 
-**[▶ Ouvrir DrawingVol](https://martial-rossignol.github.io/drawingvol/DrawingVol.html)**
+**[▶ Ouvrir DrawingVol](https://martial-rossignol.github.io/drawingvol/drawingvol.html)**
 
 **DrawingVol** est un outil web autonome (un seul fichier HTML) qui génère des gabarits SVG de volumes géométriques dépliés, optimisés pour le format A3, avec import de dessins vectoriels par face et export clippé prêt pour le pen plotter.
 
